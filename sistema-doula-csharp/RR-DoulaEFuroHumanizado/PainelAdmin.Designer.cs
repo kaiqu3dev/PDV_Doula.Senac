@@ -60,11 +60,11 @@
             // 
             // dgvPainelAdm_Agendamentos
             // 
-            dgvPainelAdm_Agendamentos.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            dgvPainelAdm_Agendamentos.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             dgvPainelAdm_Agendamentos.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgvPainelAdm_Agendamentos.Location = new Point(0, 0);
+            dgvPainelAdm_Agendamentos.Location = new Point(0, 122);
             dgvPainelAdm_Agendamentos.Name = "dgvPainelAdm_Agendamentos";
-            dgvPainelAdm_Agendamentos.Size = new Size(1350, 729);
+            dgvPainelAdm_Agendamentos.Size = new Size(1350, 450);
             dgvPainelAdm_Agendamentos.TabIndex = 0;
             dgvPainelAdm_Agendamentos.CellClick += dgvPainelAdm_Agendamentos_CellClick;
             dgvPainelAdm_Agendamentos.RowPrePaint += dgvPainelAdm_Agendamentos_RowPrePaint;
@@ -224,6 +224,7 @@
             // 
             // lblPainelAdmin_Logado
             // 
+            lblPainelAdmin_Logado.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             lblPainelAdmin_Logado.BackColor = Color.Transparent;
             lblPainelAdmin_Logado.Font = new Font("Segoe UI Semibold", 9.75F, FontStyle.Bold | FontStyle.Italic, GraphicsUnit.Point, 0);
             lblPainelAdmin_Logado.ForeColor = Color.Black;
@@ -307,7 +308,7 @@
             // 
             // panel1
             // 
-            panel1.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            panel1.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             panel1.Controls.Add(btnPainelAdmin_Reagendar);
             panel1.Controls.Add(btnPainelAdmin_Sair);
             panel1.Controls.Add(btnPainelAdmin_Novo_Agendamento);
@@ -327,7 +328,9 @@
             // 
             // panel2
             // 
+            panel2.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             panel2.Controls.Add(label5);
+            panel2.Controls.Add(lblPainelAdmin_Logado);
             panel2.Controls.Add(txtPainelAdm_Nome);
             panel2.Controls.Add(txtPainelAdm_Email);
             panel2.Controls.Add(label1);
@@ -336,7 +339,6 @@
             panel2.Controls.Add(label3);
             panel2.Controls.Add(mskPainelAdm_Telefone);
             panel2.Controls.Add(label4);
-            panel2.Dock = DockStyle.Top;
             panel2.Location = new Point(0, 0);
             panel2.Name = "panel2";
             panel2.Size = new Size(1350, 116);
@@ -347,9 +349,8 @@
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1350, 729);
-            Controls.Add(panel2);
             Controls.Add(panel1);
-            Controls.Add(lblPainelAdmin_Logado);
+            Controls.Add(panel2);
             Controls.Add(dgvPainelAdm_Agendamentos);
             Name = "PainelAdmin";
             Text = "PainelAdmin";

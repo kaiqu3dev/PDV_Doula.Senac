@@ -156,9 +156,9 @@
             lblAgendaDoula_ValorTotal.Font = new Font("Segoe UI Semibold", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
             lblAgendaDoula_ValorTotal.Location = new Point(141, 448);
             lblAgendaDoula_ValorTotal.Name = "lblAgendaDoula_ValorTotal";
-            lblAgendaDoula_ValorTotal.Size = new Size(71, 17);
+            lblAgendaDoula_ValorTotal.Size = new Size(70, 17);
             lblAgendaDoula_ValorTotal.TabIndex = 9;
-            lblAgendaDoula_ValorTotal.Text = "Valor Total";
+            lblAgendaDoula_ValorTotal.Text = "Valor Base";
             // 
             // label1
             // 

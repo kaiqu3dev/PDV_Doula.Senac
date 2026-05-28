@@ -22,12 +22,22 @@ namespace RR_DoulaEFuroHumanizado
                 conn.Open();
 
                 string sql = @"
-SELECT Id, EmailCliente, Data, Horarios, Servicos, ValorTotal, Status
-FROM Agendamentos
-WHERE Status = 'Ativo'
-AND EmailCliente IS NOT NULL
-AND TRIM(EmailCliente) <> ''
-AND IFNULL(Notificacao24hEnviada, 0) = 0";
+SELECT 
+    A.Id, 
+    C.Email AS EmailCliente, 
+    MIN(S.Data) AS Data, 
+    GROUP_CONCAT(S.Horario) AS Horarios, 
+    GROUP_CONCAT(S.Servico) AS Servicos, 
+    SUM(S.Valor) AS ValorTotal, 
+    A.Status
+FROM agendamentos A
+INNER JOIN clientes C ON A.ClienteId = C.Id
+INNER JOIN agendamento_servicos S ON S.AgendamentoId = A.Id
+WHERE S.Status = 'ATIVO'
+AND C.Email IS NOT NULL
+AND TRIM(C.Email) <> ''
+AND IFNULL(A.Notificacao24hEnviada, 0) = 0
+GROUP BY A.Id, C.Email, A.Status";
 
                 using (MySqlCommand cmd = new MySqlCommand(sql, conn))
                 using (MySqlDataReader dr = cmd.ExecuteReader())
@@ -85,17 +95,29 @@ Sistema Doula";
 
                             try
                             {
-                                emailService.EnviarEmail(
-                                    emailCliente,
-                                    assunto,
-                                    corpo
-                                );
+                                // Envia para a cliente
+                                emailService.EnviarEmail(emailCliente, assunto, corpo);
+
+                                //  Envia para o Administrador 
+                                string assuntoAdmin = $"📅 ATENDIMENTO AMANHÃ: {emailCliente}";
+                                string corpoAdmin = $@"Atenção, equipe!
+                                
+Vocês têm um atendimento agendado para amanhã.
+
+Cliente: {emailCliente}
+Data: {data:dd/MM/yyyy}
+Horários: {horarios}
+Serviços: {servicos}
+
+Preparem os materiais!";
+                                emailService.EnviarEmail("projetodoulaefuro01@gmail.com", assuntoAdmin, corpoAdmin);
+                               
 
                                 MarcarNotificacao24hComoEnviada(id);
                             }
                             catch
                             {
-                                // evita travar o sistema se falhar envio
+                                //evita travar o sistema se falhar envio
                             }
                         }
                     }
@@ -110,12 +132,22 @@ Sistema Doula";
                 conn.Open();
 
                 string sql = @"
-SELECT Id, EmailCliente, Data, Horarios, Servicos, ValorTotal, Status
-FROM Agendamentos
-WHERE Status = 'Ativo'
-AND EmailCliente IS NOT NULL
-AND TRIM(EmailCliente) <> ''
-AND IFNULL(Notificacao1hEnviada, 0) = 0";
+SELECT 
+    A.Id, 
+    C.Email AS EmailCliente, 
+    MIN(S.Data) AS Data, 
+    GROUP_CONCAT(S.Horario) AS Horarios, 
+    GROUP_CONCAT(S.Servico) AS Servicos, 
+    SUM(S.Valor) AS ValorTotal, 
+    A.Status
+FROM agendamentos A
+INNER JOIN clientes C ON A.ClienteId = C.Id
+INNER JOIN agendamento_servicos S ON S.AgendamentoId = A.Id
+WHERE S.Status = 'ATIVO'
+AND C.Email IS NOT NULL
+AND TRIM(C.Email) <> ''
+AND IFNULL(A.Notificacao1hEnviada, 0) = 0
+GROUP BY A.Id, C.Email, A.Status";
 
                 using (MySqlCommand cmd = new MySqlCommand(sql, conn))
                 using (MySqlDataReader dr = cmd.ExecuteReader())
@@ -173,12 +205,22 @@ Sistema Doula";
 
                             try
                             {
-                                emailService.EnviarEmail(
-                                    emailCliente,
-                                    assunto,
-                                    corpo
-                                );
+                                // Envia para a cliente
+                                emailService.EnviarEmail(emailCliente, assunto, corpo);
 
+                                //  NOVO: Envia para o Administrador
+                                string assuntoAdmin = $"⏰ ATENDIMENTO EM 1 HORA: {emailCliente}";
+                                string corpoAdmin = $@"Atenção, equipe!
+                                
+O atendimento está prestes a começar (em menos de 1 hora).
+
+Cliente: {emailCliente}
+Horários: {horarios}
+Serviços: {servicos}
+
+Ótimo atendimento!";
+                                emailService.EnviarEmail("projetodoulaefuro01@gmail.com", assuntoAdmin, corpoAdmin);
+                                
                                 MarcarNotificacao1hComoEnviada(id);
                             }
                             catch

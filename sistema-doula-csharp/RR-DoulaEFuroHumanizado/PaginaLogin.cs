@@ -122,7 +122,7 @@ AND (Status IS NULL OR Status <> 'Banido')";
             {
                 conn.Open();
 
-                // 1. VERIFICAÇÃO DA BLACKLIST
+                //  VERIFICAÇÃO DA BLACKLIST
                 string sqlBlacklist = "SELECT COUNT(*) FROM blacklist WHERE email = @Identificador OR cpf = @Identificador";
                 using (MySqlCommand cmdBlacklist = new MySqlCommand(sqlBlacklist, conn))
                 {
@@ -132,11 +132,11 @@ AND (Status IS NULL OR Status <> 'Banido')";
                     if (bloqueado > 0)
                     {
                         MessageBox.Show("Acesso negado: Este usuário foi bloqueado do sistema.");
-                        return; // Para a execução do login aqui
+                        return; 
                     }
                 }
 
-                // 2. LOGIN NORMAL
+                //  LOGIN NORMAL
                 string sql = "SELECT TipoUsuario, CodigoAcesso, Nome FROM usuarios WHERE CodigoAcesso = @Codigo AND Senha = @Senha";
 
                 using (MySqlCommand cmd = new MySqlCommand(sql, conn))
@@ -165,7 +165,7 @@ AND (Status IS NULL OR Status <> 'Banido')";
                 tela.ShowDialog();
 
                 this.Show();
-                txtSenha.Clear(); // Limpa a senha por segurança ao voltar para a tela de login
+                txtSenha.Clear(); 
             }
             else
             {

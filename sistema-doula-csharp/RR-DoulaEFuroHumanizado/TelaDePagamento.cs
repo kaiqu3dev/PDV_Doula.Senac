@@ -6,6 +6,7 @@ namespace RR_DoulaEFuroHumanizado
     public partial class TelaDePagamento : Form
     {
         public bool PagamentoConfirmado = false;
+        public string FormaEscolhida = "";
 
         DateTime data;
         string horarios;
@@ -105,15 +106,13 @@ namespace RR_DoulaEFuroHumanizado
 
                 string formaPagamento = cbbPagamento_FormasdePagamento.SelectedItem.ToString();
 
+                // Apenas guarda a forma que foi selecionada (Pix, Cartão, Boleto)
+                FormaEscolhida = cbbPagamento_FormasdePagamento.SelectedItem.ToString();
+
+                // Avisa o sistema que o usuário prosseguiu (não cancelou)
                 PagamentoConfirmado = true;
 
-                MessageBox.Show(
-                    $"Pagamento confirmado com sucesso!\n\nForma de pagamento: {formaPagamento}\nValor: R$ {total:N2}",
-                    "Pagamento",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information
-                );
-
+                // Fecha essa tela silenciosamente para o sistema disparar o e-mail e abrir a tela de espera
                 DialogResult = DialogResult.OK;
                 Close();
             }
