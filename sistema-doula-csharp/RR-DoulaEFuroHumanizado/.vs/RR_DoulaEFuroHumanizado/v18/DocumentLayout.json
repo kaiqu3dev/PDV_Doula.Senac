@@ -3,8 +3,12 @@
   "WorkspaceRootPath": "C:\\Users\\Admin\\Desktop\\projetoRenomeado\\sistema-doula-csharp\\RR-DoulaEFuroHumanizado\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{2CB85614-79F7-3A9D-81C4-D13EF7B2FE07}|RR_DoulaEFuroHumanizado.csproj|c:\\users\\admin\\desktop\\projetorenomeado\\sistema-doula-csharp\\rr-doulaefurohumanizado\\paginaagendamentodoula.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
-      "RelativeMoniker": "D:0:0:{2CB85614-79F7-3A9D-81C4-D13EF7B2FE07}|RR_DoulaEFuroHumanizado.csproj|solutionrelative:paginaagendamentodoula.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+      "AbsoluteMoniker": "D:0:0:{2CB85614-79F7-3A9D-81C4-D13EF7B2FE07}|RR_DoulaEFuroHumanizado.csproj|c:\\users\\admin\\desktop\\projetorenomeado\\sistema-doula-csharp\\rr-doulaefurohumanizado\\teladecadastro.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2CB85614-79F7-3A9D-81C4-D13EF7B2FE07}|RR_DoulaEFuroHumanizado.csproj|solutionrelative:teladecadastro.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{2CB85614-79F7-3A9D-81C4-D13EF7B2FE07}|RR_DoulaEFuroHumanizado.csproj|c:\\users\\admin\\desktop\\projetorenomeado\\sistema-doula-csharp\\rr-doulaefurohumanizado\\teladecadastro.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{2CB85614-79F7-3A9D-81C4-D13EF7B2FE07}|RR_DoulaEFuroHumanizado.csproj|solutionrelative:teladecadastro.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
     }
   ],
   "DocumentGroupContainers": [
@@ -27,13 +31,26 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "PaginaAgendamentoDoula.cs [Projeto]",
-              "DocumentMoniker": "C:\\Users\\Admin\\Desktop\\projetoRenomeado\\sistema-doula-csharp\\RR-DoulaEFuroHumanizado\\PaginaAgendamentoDoula.cs",
-              "RelativeDocumentMoniker": "PaginaAgendamentoDoula.cs",
-              "ToolTip": "C:\\Users\\Admin\\Desktop\\projetoRenomeado\\sistema-doula-csharp\\RR-DoulaEFuroHumanizado\\PaginaAgendamentoDoula.cs [Projeto]",
-              "RelativeToolTip": "PaginaAgendamentoDoula.cs [Projeto]",
+              "Title": "TelaDeCadastro.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Desktop\\projetoRenomeado\\sistema-doula-csharp\\RR-DoulaEFuroHumanizado\\TelaDeCadastro.cs",
+              "RelativeDocumentMoniker": "TelaDeCadastro.cs",
+              "ToolTip": "C:\\Users\\Admin\\Desktop\\projetoRenomeado\\sistema-doula-csharp\\RR-DoulaEFuroHumanizado\\TelaDeCadastro.cs",
+              "RelativeToolTip": "TelaDeCadastro.cs",
+              "ViewState": "AgIAAEcAAAAAAAAAAAAAAF4AAAAUAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-28T19:23:55.153Z",
+              "WhenOpened": "2026-05-29T16:04:07.105Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "TelaDeCadastro.cs [Projeto]",
+              "DocumentMoniker": "C:\\Users\\Admin\\Desktop\\projetoRenomeado\\sistema-doula-csharp\\RR-DoulaEFuroHumanizado\\TelaDeCadastro.cs",
+              "RelativeDocumentMoniker": "TelaDeCadastro.cs",
+              "ToolTip": "C:\\Users\\Admin\\Desktop\\projetoRenomeado\\sistema-doula-csharp\\RR-DoulaEFuroHumanizado\\TelaDeCadastro.cs [Projeto]",
+              "RelativeToolTip": "TelaDeCadastro.cs [Projeto]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-29T16:04:02.803Z",
               "EditorCaption": " [Projeto]"
             }
           ]

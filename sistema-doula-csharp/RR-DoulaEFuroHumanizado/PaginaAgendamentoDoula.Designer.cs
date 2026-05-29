@@ -50,7 +50,6 @@
             pnlAgendamentoFuro_Horarios = new FlowLayoutPanel();
             cbbQuantidadeFuro_Pessoas = new ComboBox();
             label3 = new Label();
-            btnDoula_Historico = new Button();
             pnl_GrupoDoula.SuspendLayout();
             pnl_GrupoFuroDeOrelha.SuspendLayout();
             SuspendLayout();
@@ -112,6 +111,7 @@
             // 
             // pnlAgendamentoDoula_Horarios
             // 
+            pnlAgendamentoDoula_Horarios.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             pnlAgendamentoDoula_Horarios.Location = new Point(0, 124);
             pnlAgendamentoDoula_Horarios.Name = "pnlAgendamentoDoula_Horarios";
             pnlAgendamentoDoula_Horarios.Size = new Size(161, 109);
@@ -248,7 +248,8 @@
             // 
             // pnlAgendamentoFuro_Horarios
             // 
-            pnlAgendamentoFuro_Horarios.Location = new Point(2, 124);
+            pnlAgendamentoFuro_Horarios.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            pnlAgendamentoFuro_Horarios.Location = new Point(0, 124);
             pnlAgendamentoFuro_Horarios.Name = "pnlAgendamentoFuro_Horarios";
             pnlAgendamentoFuro_Horarios.Size = new Size(182, 109);
             pnlAgendamentoFuro_Horarios.TabIndex = 16;
@@ -272,23 +273,11 @@
             label3.TabIndex = 17;
             label3.Text = "Quantidade de pessoas :";
             // 
-            // btnDoula_Historico
-            // 
-            btnDoula_Historico.Font = new Font("Segoe UI Semibold", 9.75F, FontStyle.Bold | FontStyle.Italic);
-            btnDoula_Historico.Location = new Point(105, 528);
-            btnDoula_Historico.Name = "btnDoula_Historico";
-            btnDoula_Historico.Size = new Size(149, 26);
-            btnDoula_Historico.TabIndex = 19;
-            btnDoula_Historico.Text = "Historico de Compras";
-            btnDoula_Historico.UseVisualStyleBackColor = true;
-            btnDoula_Historico.Click += btnDoula_Historico_Click;
-            // 
             // PaginaAgendamentoDoula
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(353, 566);
-            Controls.Add(btnDoula_Historico);
             Controls.Add(cbbQuantidadeFuro_Pessoas);
             Controls.Add(pnl_GrupoFuroDeOrelha);
             Controls.Add(label3);
@@ -337,6 +326,5 @@
         private FlowLayoutPanel pnlAgendamentoFuro_Horarios;
         private Label label3;
         private ComboBox cbbQuantidadeFuro_Pessoas;
-        private Button btnDoula_Historico;
     }
 }

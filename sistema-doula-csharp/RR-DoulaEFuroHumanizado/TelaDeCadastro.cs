@@ -36,7 +36,7 @@ namespace RR_DoulaEFuroHumanizado
             {
                 conn.Open();
 
-                //  Verificação da Blacklist
+                // Verificação da Blacklist (Segurança)
                 string sqlCheck = "SELECT COUNT(*) FROM blacklist WHERE cpf = @CPF OR email = @Email";
                 MySqlCommand cmdCheck = new MySqlCommand(sqlCheck, conn);
                 cmdCheck.Parameters.AddWithValue("@CPF", mskCadastro_CPF.Text);
@@ -48,22 +48,33 @@ namespace RR_DoulaEFuroHumanizado
                     return;
                 }
 
-                // Busca o maior código atual
-                string sqlCodigo = "SELECT codigoacesso FROM usuarios ORDER BY id DESC LIMIT 1";
-                MySqlCommand cmdCodigo = new MySqlCommand(sqlCodigo, conn);
-                object resultado = cmdCodigo.ExecuteScalar();
+                // GERAÇÃO DO CÓDIGO SEQUENCIAL
+                string prefixo = (cargoEquipe == "SUBADM") ? "SUB-" : "FUN-";
+                string codigoAcesso = prefixo + "01"; // Padrão se não houver ninguém
 
-                int proximoNumero = 1;
-                if (resultado != null && int.TryParse(resultado.ToString(), out int numero))
+                // Busca o último código gerado APENAS para este tipo de cargo
+                string sqlCodigo = "SELECT codigoacesso FROM usuarios WHERE tipousuario = @Tipo ORDER BY id DESC LIMIT 1";
+                using (MySqlCommand cmdCodigo = new MySqlCommand(sqlCodigo, conn))
                 {
-                    proximoNumero = numero + 1;
-                }
-                string codigoAcesso = proximoNumero.ToString("D4");
+                    cmdCodigo.Parameters.AddWithValue("@Tipo", cargoEquipe);
+                    object resultado = cmdCodigo.ExecuteScalar();
 
-                // INSERT focado na equipe
+                    if (resultado != null)
+                    {
+                        string ultimoCodigo = resultado.ToString(); // Ex: "FUN-01"
+                        string numeroTexto = ultimoCodigo.Replace(prefixo, ""); // Remove "FUN-" sobra "01"
+
+                        if (int.TryParse(numeroTexto, out int ultimoNumero))
+                        {
+                            // Soma 1 e formata com dois dígitos (D2)
+                            codigoAcesso = prefixo + (ultimoNumero + 1).ToString("D2");
+                        }
+                    }
+                }
+
                 string query = @"
-                INSERT INTO usuarios (nome, idade, cpf, cep, sexo, estadocivil, telefone, email, senha, tipousuario, codigoacesso, endereco, naturalidade)
-                VALUES (@Nome, @Idade, @CPF, @CEP, @Sexo, @EstadoCivil, @Telefone, @Email, @Senha, @TipoUsuario, @CodigoAcesso, @Endereco, @Naturalidade)";
+            INSERT INTO usuarios (nome, idade, cpf, cep, sexo, estadocivil, telefone, email, senha, tipousuario, codigoacesso, endereco, naturalidade)
+            VALUES (@Nome, @Idade, @CPF, @CEP, @Sexo, @EstadoCivil, @Telefone, @Email, @Senha, @TipoUsuario, @CodigoAcesso, @Endereco, @Naturalidade)";
 
                 using (MySqlCommand cmd = new MySqlCommand(query, conn))
                 {
@@ -76,10 +87,7 @@ namespace RR_DoulaEFuroHumanizado
                     cmd.Parameters.AddWithValue("@Telefone", mskCadastro_Telefone.Text);
                     cmd.Parameters.AddWithValue("@Email", txtCadastro_Email.Text);
                     cmd.Parameters.AddWithValue("@Senha", txtCadastro_Senha.Text);
-
-                    // Salva como FUNCIONARIO ou SUBADM
                     cmd.Parameters.AddWithValue("@TipoUsuario", cargoEquipe);
-
                     cmd.Parameters.AddWithValue("@CodigoAcesso", codigoAcesso);
                     cmd.Parameters.AddWithValue("@Endereco", txtCadastro_Endereco.Text);
                     cmd.Parameters.AddWithValue("@Naturalidade", cbbCadastro_Naturalidade.Text);

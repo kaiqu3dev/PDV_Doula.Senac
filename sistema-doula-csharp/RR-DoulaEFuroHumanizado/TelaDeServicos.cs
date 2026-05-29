@@ -43,18 +43,22 @@ namespace RR_DoulaEFuroHumanizado
                     // Lógica para montar o filtro de tempo no banco de dados
                     string condicaoTempo = "";
 
-                    if (filtro == "dia")
-                        condicaoTempo = "DATE(S.Data) = CURDATE()"; // Exatamente hoje
+                    // Ajuste: Oculta os horários que já passaram no dia de hoje
+                    if (filtro == "dia" || filtro == "hoje")
+                        condicaoTempo = "DATE(S.Data) = CURDATE() AND S.Horario >= CURTIME()";
                     else if (filtro == "semana")
-                        condicaoTempo = "YEARWEEK(S.Data, 1) = YEARWEEK(CURDATE(), 1)"; // Mesma semana do ano atual
+                        condicaoTempo = "YEARWEEK(S.Data, 1) = YEARWEEK(CURDATE(), 1)";
                     else if (filtro == "mes" || filtro == "mês")
-                        condicaoTempo = "MONTH(S.Data) = MONTH(CURDATE()) AND YEAR(S.Data) = YEAR(CURDATE())"; // Mesmo mês e ano
+                        condicaoTempo = "MONTH(S.Data) = MONTH(CURDATE()) AND YEAR(S.Data) = YEAR(CURDATE())";
                     else if (filtro == "ano")
-                        condicaoTempo = "YEAR(S.Data) = YEAR(CURDATE())"; // Mesmo ano
+                        condicaoTempo = "YEAR(S.Data) = YEAR(CURDATE())";
                     else
                         condicaoTempo = "1=1"; // Prevenção de erro: traz tudo
 
-                    // A Query SQL corrigida para buscar CLIENTES e puxar a coluna COMPARECIMENTO
+                    // =====================================================================
+                    // SQL BLINDADO: Puxa o comparecimento, BARRA quem estiver bloqueado
+                    // ou quem estiver dentro da tabela blacklist!
+                    // =====================================================================
                     string sql = $@"
                 SELECT 
                     S.Id, 
@@ -66,7 +70,10 @@ namespace RR_DoulaEFuroHumanizado
                 FROM agendamento_servicos S
                 INNER JOIN agendamentos A ON A.Id = S.AgendamentoId
                 INNER JOIN clientes C ON C.Id = A.ClienteId
-                WHERE {condicaoTempo} AND S.Status = 'ATIVO'
+                WHERE {condicaoTempo} 
+                  AND S.Status = 'ATIVO' 
+                  AND IFNULL(C.Status, 'ATIVO') <> 'BLOQUEADO' 
+                  AND C.Email NOT IN (SELECT email FROM blacklist)
                 ORDER BY S.Data ASC, S.Horario ASC";
 
                     MySqlDataAdapter da = new MySqlDataAdapter(sql, conn);
@@ -100,6 +107,9 @@ namespace RR_DoulaEFuroHumanizado
                     }
 
                     dgvTelaServical_Comanda.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+
+                    // Trava de segurança contra cliques acidentais (deixa a tabela desmarcada)
+                    dgvTelaServical_Comanda.ClearSelection();
                 }
             }
             catch (Exception ex)

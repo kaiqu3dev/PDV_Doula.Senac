@@ -205,13 +205,13 @@ namespace RR_DoulaEFuroHumanizado
 
                         if (bloqueado > 0)
                         {
-                            MessageBox.Show("Cadastro não permitido: Este CPF ou E-mail encontra-se bloqueado no sistema.", "Acesso Negado", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            MessageBox.Show("Cadastro não permitido: Este CPF ou E-mail encontra-se bloqueado no sistema por violação de termos.", "Acesso Negado", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             return;
                         }
                     }
 
-                    // VERIFICAÇÃO SE O CLIENTE JÁ ESTÁ CADASTRADO NORMALMENTE
-                    string queryExiste = "SELECT COUNT(*) FROM usuarios WHERE CPF = @CPF OR Email = @Email";
+                    // VERIFICAÇÃO SE O CLIENTE JÁ ESTÁ CADASTRADO 
+                    string queryExiste = "SELECT COUNT(*) FROM clientes WHERE CPF = @CPF OR Email = @Email";
                     using (MySqlCommand cmdExiste = new MySqlCommand(queryExiste, conn))
                     {
                         cmdExiste.Parameters.AddWithValue("@CPF", cpf);
@@ -225,7 +225,8 @@ namespace RR_DoulaEFuroHumanizado
                         }
                     }
 
-                    // INSERIMENTO DO NOVO CLIENTE NO BANCO (SEM SENHA E SEM CÓDIGO)
+
+                    // INSERÇÃO DO NOVO CLIENTE NO BANCO (COM STATUS 'ATIVO')
                     string queryInsert = @"
                 INSERT INTO clientes 
                 (Nome, Idade, CPF, CEP, Bairro, Sexo, EstadoCivil, Nacionalidade, Email, Telefone, Status) 
@@ -238,13 +239,10 @@ namespace RR_DoulaEFuroHumanizado
                         cmdInsert.Parameters.AddWithValue("@Idade", Convert.ToInt32(txtCadastroCliente_Idade.Text.Trim()));
                         cmdInsert.Parameters.AddWithValue("@CPF", cpf);
                         cmdInsert.Parameters.AddWithValue("@CEP", mskCadastroCliente_CEP.Text.Trim());
-
-                        // Agora os novos campos têm suas próprias colunas!
                         cmdInsert.Parameters.AddWithValue("@Bairro", txtCadastroCliente_Bairro.Text.Trim());
                         cmdInsert.Parameters.AddWithValue("@Sexo", cbbCadastroCliente_Sexualidade.Text);
                         cmdInsert.Parameters.AddWithValue("@EstadoCivil", cbbCadastroCliente_eCivil.Text);
                         cmdInsert.Parameters.AddWithValue("@Nacionalidade", cbbCadastroCliente_Nacionalidade.Text);
-
                         cmdInsert.Parameters.AddWithValue("@Email", email);
                         cmdInsert.Parameters.AddWithValue("@Telefone", mskCadastroCliente_Telefone.Text.Trim());
 
@@ -257,10 +255,12 @@ namespace RR_DoulaEFuroHumanizado
 
                     btnCadastroCliente_LimparTudo_Click(sender, e);
                 }
+
+                // Abre a tela de agendamento repassando o ID criado
                 using (PaginaAgendamentoDoula Doula = new PaginaAgendamentoDoula(idClienteGerado, email))
                 {
-                    this.Hide(); 
-                    Doula.ShowDialog(); 
+                    this.Hide();
+                    Doula.ShowDialog();
                     this.Close();
                 }
 
@@ -270,7 +270,6 @@ namespace RR_DoulaEFuroHumanizado
                 MessageBox.Show("Erro ao cadastrar cliente no banco de dados: " + ex.Message, "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
         private void btnCadastroCliente_Voltar_Click(object sender, EventArgs e)
         {
             this.Close();

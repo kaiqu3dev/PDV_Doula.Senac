@@ -74,7 +74,7 @@ namespace RR_DoulaEFuroHumanizado
 
         private void ConfigurarPermissoes()
         {
-           
+
         }
 
         private void CarregarAgendamentos()
@@ -94,21 +94,21 @@ namespace RR_DoulaEFuroHumanizado
         C.Telefone, 
         C.CPF, 
         IFNULL(C.Status,'ATIVO') AS statususuario, 
-        S.Tipo, 
-        S.Servico, 
+        IFNULL(S.Tipo, 'Sem Agendamento') AS Tipo, 
+        IFNULL(S.Servico, 'Apenas Cadastro') AS Servico, 
         S.Data, 
-        S.Horario, 
+        IFNULL(S.Horario, '--') AS Horario, 
         COUNT(S.Id) AS QuantidadePessoas, 
-        SUM(S.Valor) AS Valor, 
-        S.Status,
-        IF(S.Status = 'CANCELADO', '--', IFNULL(S.Comparecimento, 'PENDENTE')) AS Comparecimento 
-    FROM agendamento_servicos S 
-    INNER JOIN agendamentos A ON A.Id = S.AgendamentoId 
-    INNER JOIN clientes C ON C.Id = A.ClienteId 
+        IFNULL(SUM(S.Valor), 0) AS Valor, 
+        IFNULL(S.Status, '--') AS Status,
+        IF(S.Status = 'CANCELADO' OR S.Status IS NULL, '--', IFNULL(S.Comparecimento, 'PENDENTE')) AS Comparecimento 
+    FROM clientes C 
+    LEFT JOIN agendamentos A ON C.Id = A.ClienteId 
+    LEFT JOIN agendamento_servicos S ON A.Id = S.AgendamentoId 
     GROUP BY 
-        A.Id, C.Nome, C.Email, C.Telefone, C.CPF, IFNULL(C.Status,'ATIVO'), 
+        A.Id, C.Id, C.Nome, C.Email, C.Telefone, C.CPF, IFNULL(C.Status,'ATIVO'), 
         S.Tipo, S.Servico, S.Data, S.Horario, S.Status, S.Comparecimento 
-    ORDER BY S.Data DESC";
+    ORDER BY S.Data DESC, C.Nome ASC";
 
                     MySqlDataAdapter da = new MySqlDataAdapter(sql, conn);
 
@@ -203,7 +203,21 @@ namespace RR_DoulaEFuroHumanizado
             string comparecimento = PegarValorLinha(row, "Comparecimento").ToUpper();
             string statusUsuario = PegarValorLinha(row, "statususuario").ToUpper();
 
-            //  REGRAS DE CANCELAMENTO E PAGAMENTO
+            // USUÁRIO BLOQUEADO
+            // Se estiver bloqueado, a linha toda fica vermelha e o código para por aqui.
+            if (statusUsuario == "BLOQUEADO" || statusUsuario == "INATIVO")
+            {
+                row.DefaultCellStyle.BackColor = Color.MistyRose; // Fundo avermelhado
+                row.DefaultCellStyle.ForeColor = Color.DarkRed;   // Letra vermelha
+                return;
+            }
+            else
+            {
+                // Garante que clientes normais tenham a letra preta padrão
+                row.DefaultCellStyle.ForeColor = Color.Black;
+            }
+
+            // REGRAS DE CANCELAMENTO E PAGAMENTO (Apenas para ativos)
             if (statusItem == "CANCELADO")
             {
                 row.DefaultCellStyle.BackColor = Color.LightCoral; // Vermelho claro (Reembolsado)
@@ -212,7 +226,7 @@ namespace RR_DoulaEFuroHumanizado
             {
                 row.DefaultCellStyle.BackColor = Color.Orange; // Laranja (Aguardando pagar o link)
             }
-            //  REGRAS DE PRESENÇA (Só aplica se o pagamento estiver ATIVO)
+            // REGRAS DE PRESENÇA (Só aplica se o pagamento estiver ATIVO)
             else if (statusItem == "ATIVO")
             {
                 if (comparecimento == "COMPARECEU")
@@ -227,15 +241,6 @@ namespace RR_DoulaEFuroHumanizado
                 {
                     row.DefaultCellStyle.BackColor = Color.LightYellow; // Amarelo
                 }
-            }
-
-            //  REGRA DO TEXTO DO USUÁRIO (Lista Negra / Inativo)
-            if (!string.IsNullOrWhiteSpace(statusUsuario) && dgvPainelAdm_Agendamentos.Columns.Contains("statususuario"))
-            {
-                if (statusUsuario == "INATIVO" || statusUsuario == "BLOQUEADO")
-                    row.Cells["statususuario"].Style.ForeColor = Color.DarkRed;
-                else
-                    row.Cells["statususuario"].Style.ForeColor = Color.DarkBlue;
             }
         }
 
@@ -301,6 +306,30 @@ namespace RR_DoulaEFuroHumanizado
 
                 DateTime novaData = dtpPainelAdm_NovaData.Value.Date;
                 string novoHorario = cbbPainelAdm_NovoHorario.Text;
+
+                // TRAVA CONTRA VIAGEM NO TEMPO (Datas e Horários no passado)
+
+                if (novaData < DateTime.Today)
+                {
+                    MessageBox.Show("Operação cancelada: Não é permitido reagendar para um dia que já passou.", "Data Inválida", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return; // Para o código aqui!
+                }
+
+                // Se for hoje, precisa conferir se a hora já não passou
+                if (novaData == DateTime.Today)
+                {
+                    if (TimeSpan.TryParse(novoHorario, out TimeSpan horaEscolhida))
+                    {
+                        // Pega a hora atual do computador
+                        TimeSpan horaAtual = DateTime.Now.TimeOfDay;
+
+                        if (horaEscolhida <= horaAtual)
+                        {
+                            MessageBox.Show("Operação cancelada: Este horário já passou no dia de hoje.", "Horário Inválido", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            return; 
+                        }
+                    }
+                }
 
                 using (MySqlConnection conn = new MySqlConnection(Conexao.StringConexao))
                 {
@@ -665,28 +694,57 @@ Data que estava marcada: {dataOriginal:dd/MM/yyyy}";
 
         private void btnPainelAdmin_Deletar_Usuario_Click(object sender, EventArgs e)
         {
-            // Verifica se tem algum usuário selecionado na tabela
+            // 1. Verifica se tem algum usuário selecionado na tabela
             if (dgvPainelAdm_Agendamentos.SelectedRows.Count == 0)
             {
                 MessageBox.Show("Selecione um usuário na lista primeiro.", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            // Extrai os dados do usuário da linha selecionada
+            // 2. Extrai os dados do usuário da linha selecionada
             DataGridViewRow row = dgvPainelAdm_Agendamentos.SelectedRows[0];
-
 
             string nomeUsuario = PegarValorLinha(row, "Nome");
             string cpfUsuario = PegarValorLinha(row, "CPF");
             string emailUsuario = PegarValorLinha(row, "Email");
 
-            if (string.IsNullOrWhiteSpace(cpfUsuario) && string.IsNullOrWhiteSpace(emailUsuario))
+            if (string.IsNullOrWhiteSpace(cpfUsuario))
             {
-                MessageBox.Show("O usuário selecionado não possui CPF ou Email válido para bloqueio.");
+                MessageBox.Show("O usuário selecionado não possui CPF válido para bloqueio.");
                 return;
             }
 
-            // Confirmação dupla para evitar cliques acidentais
+            // =====================================================================
+            // PASSO A: VERIFICA SE O USUÁRIO JÁ ESTÁ BLOQUEADO (Usando o CPF único)
+            // =====================================================================
+            try
+            {
+                using (MySqlConnection conn = new MySqlConnection(Conexao.StringConexao))
+                {
+                    conn.Open();
+                    string checkQuery = "SELECT Status FROM clientes WHERE CPF = @CPF";
+                    using (MySqlCommand cmdCheck = new MySqlCommand(checkQuery, conn))
+                    {
+                        cmdCheck.Parameters.AddWithValue("@CPF", cpfUsuario);
+                        object result = cmdCheck.ExecuteScalar();
+
+                        // Se o resultado já for BLOQUEADO, avisa e encerra!
+                        if (result != null && result.ToString().ToUpper() == "BLOQUEADO")
+                        {
+                            MessageBox.Show("Ação cancelada: Este usuário já se encontra BLOQUEADO no sistema.", "Usuário já bloqueado", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            return;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Erro ao verificar status do usuário: " + ex.Message);
+                return;
+            }
+            // =====================================================================
+
+            // 3. Confirmação dupla para evitar cliques acidentais
             DialogResult confirmacao = MessageBox.Show(
                 $"Tem certeza que deseja BLOQUEAR permanentemente o usuário:\n\n{nomeUsuario}?\n\nEle não poderá mais acessar o sistema ou fazer agendamentos.",
                 "Confirmação de Bloqueio (Lista Negra)",
@@ -696,32 +754,55 @@ Data que estava marcada: {dataOriginal:dd/MM/yyyy}";
 
             if (confirmacao != DialogResult.Yes) return;
 
-            //  Barreira de Segurança: Pede a senha do ADM
+            // 4. Barreira de Segurança: Pede a senha do ADM
             if (!AuthPopup.PedirSenhaAdmin()) return;
 
-            //  Salva na Blacklist no Banco de Dados
+            // 5. Salva na Blacklist e Altera o Status
             try
             {
                 using (MySqlConnection conn = new MySqlConnection(Conexao.StringConexao))
                 {
                     conn.Open();
 
-                    // Insere o usuário na tabela blacklist
-                    string queryBlacklist = "INSERT INTO blacklist (nome, cpf, email) VALUES (@Nome, @CPF, @Email)";
-
+                    // Insere na Blacklist ignorando se já existir
+                    string queryBlacklist = "INSERT IGNORE INTO blacklist (nome, cpf, email) VALUES (@Nome, @CPF, @Email)";
                     using (MySqlCommand cmd = new MySqlCommand(queryBlacklist, conn))
                     {
                         cmd.Parameters.AddWithValue("@Nome", nomeUsuario);
                         cmd.Parameters.AddWithValue("@CPF", cpfUsuario);
                         cmd.Parameters.AddWithValue("@Email", emailUsuario);
-
                         cmd.ExecuteNonQuery();
+                    }
+
+                    // PASSO B: MUDA O STATUS PARA A PALAVRA CORRETA DO SEU BANCO E USA O CPF
+                    string queryUpdate = "UPDATE clientes SET Status = 'BLOQUEADO' WHERE CPF = @CPF";
+                    using (MySqlCommand cmdUpdate = new MySqlCommand(queryUpdate, conn))
+                    {
+                        cmdUpdate.Parameters.AddWithValue("@CPF", cpfUsuario);
+                        cmdUpdate.ExecuteNonQuery();
+                    }
+
+                    // Cancela os serviços pendentes apenas deste CPF exato
+                    string queryCancelaServicos = @"
+                UPDATE agendamento_servicos S 
+                INNER JOIN agendamentos A ON S.AgendamentoId = A.Id 
+                INNER JOIN clientes C ON A.ClienteId = C.Id 
+                SET S.Status = 'CANCELADO' 
+                WHERE C.CPF = @CPF AND S.Data >= CURDATE()";
+
+                    using (MySqlCommand cmdCancela = new MySqlCommand(queryCancelaServicos, conn))
+                    {
+                        cmdCancela.Parameters.AddWithValue("@CPF", cpfUsuario);
+                        cmdCancela.ExecuteNonQuery();
                     }
 
                     MessageBox.Show("Usuário banido e enviado para a Lista Negra com sucesso!", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                     // Atualiza a tabela do painel
                     CarregarAgendamentos();
+
+                    // Tira a seleção azul para a tela ficar limpa
+                    dgvPainelAdm_Agendamentos.ClearSelection();
                 }
             }
             catch (Exception ex)
@@ -739,21 +820,16 @@ Data que estava marcada: {dataOriginal:dd/MM/yyyy}";
         {
             CadastroCliente telaCadastro = new CadastroCliente();
 
-            // Opcional: Esconde o menu de fundo para ficar mais limpo
             this.Hide();
 
-            // Se o cadastro retornar "OK" (ou seja, se salvou e não fechou no 'X' vermelho)
             if (telaCadastro.ShowDialog() == DialogResult.OK)
             {
-                // Pega o e-mail que foi salvo lá na tela de cadastro
                 string email = telaCadastro.EmailDoClienteSalvo;
 
-                // Abre a tela de Agendamento passando o e-mail desse cliente!
                 PaginaAgendamentoDoula telaAgendamento = new PaginaAgendamentoDoula(email);
                 telaAgendamento.ShowDialog();
             }
 
-            // Quando terminar tudo (ou se cancelar o cadastro), volta a mostrar o Menu
             this.Show();
         }
         private EmailService CriarEmailService()
@@ -766,6 +842,7 @@ Data que estava marcada: {dataOriginal:dd/MM/yyyy}";
                 "Sistema Doula"
             );
         }
+
     }
 
 }
