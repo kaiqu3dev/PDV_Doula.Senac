@@ -326,7 +326,7 @@ namespace RR_DoulaEFuroHumanizado
                         if (horaEscolhida <= horaAtual)
                         {
                             MessageBox.Show("Operação cancelada: Este horário já passou no dia de hoje.", "Horário Inválido", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                            return; 
+                            return;
                         }
                     }
                 }
@@ -694,14 +694,14 @@ Data que estava marcada: {dataOriginal:dd/MM/yyyy}";
 
         private void btnPainelAdmin_Deletar_Usuario_Click(object sender, EventArgs e)
         {
-            // 1. Verifica se tem algum usuário selecionado na tabela
+            // Verifica se tem algum usuário selecionado na tabela
             if (dgvPainelAdm_Agendamentos.SelectedRows.Count == 0)
             {
                 MessageBox.Show("Selecione um usuário na lista primeiro.", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            // 2. Extrai os dados do usuário da linha selecionada
+            // Extrai os dados do usuário da linha selecionada
             DataGridViewRow row = dgvPainelAdm_Agendamentos.SelectedRows[0];
 
             string nomeUsuario = PegarValorLinha(row, "Nome");
@@ -714,9 +714,7 @@ Data que estava marcada: {dataOriginal:dd/MM/yyyy}";
                 return;
             }
 
-            // =====================================================================
-            // PASSO A: VERIFICA SE O USUÁRIO JÁ ESTÁ BLOQUEADO (Usando o CPF único)
-            // =====================================================================
+            // VERIFICA SE O USUÁRIO JÁ ESTÁ BLOQUEADO (Usando o CPF único)
             try
             {
                 using (MySqlConnection conn = new MySqlConnection(Conexao.StringConexao))
@@ -742,9 +740,8 @@ Data que estava marcada: {dataOriginal:dd/MM/yyyy}";
                 MessageBox.Show("Erro ao verificar status do usuário: " + ex.Message);
                 return;
             }
-            // =====================================================================
 
-            // 3. Confirmação dupla para evitar cliques acidentais
+            // Confirmação dupla para evitar cliques acidentais
             DialogResult confirmacao = MessageBox.Show(
                 $"Tem certeza que deseja BLOQUEAR permanentemente o usuário:\n\n{nomeUsuario}?\n\nEle não poderá mais acessar o sistema ou fazer agendamentos.",
                 "Confirmação de Bloqueio (Lista Negra)",
@@ -754,10 +751,10 @@ Data que estava marcada: {dataOriginal:dd/MM/yyyy}";
 
             if (confirmacao != DialogResult.Yes) return;
 
-            // 4. Barreira de Segurança: Pede a senha do ADM
+            // Barreira de Segurança: Pede a senha do ADM
             if (!AuthPopup.PedirSenhaAdmin()) return;
 
-            // 5. Salva na Blacklist e Altera o Status
+            // Salva na Blacklist e Altera o Status
             try
             {
                 using (MySqlConnection conn = new MySqlConnection(Conexao.StringConexao))
@@ -774,7 +771,7 @@ Data que estava marcada: {dataOriginal:dd/MM/yyyy}";
                         cmd.ExecuteNonQuery();
                     }
 
-                    // PASSO B: MUDA O STATUS PARA A PALAVRA CORRETA DO SEU BANCO E USA O CPF
+                    // MUDA O STATUS PARA A PALAVRA CORRETA DO SEU BANCO E USA O CPF
                     string queryUpdate = "UPDATE clientes SET Status = 'BLOQUEADO' WHERE CPF = @CPF";
                     using (MySqlCommand cmdUpdate = new MySqlCommand(queryUpdate, conn))
                     {
@@ -820,7 +817,7 @@ Data que estava marcada: {dataOriginal:dd/MM/yyyy}";
         {
             CadastroCliente telaCadastro = new CadastroCliente();
 
-            this.Hide();
+           
 
             if (telaCadastro.ShowDialog() == DialogResult.OK)
             {
@@ -843,6 +840,10 @@ Data que estava marcada: {dataOriginal:dd/MM/yyyy}";
             );
         }
 
+        private void label2_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 
 }

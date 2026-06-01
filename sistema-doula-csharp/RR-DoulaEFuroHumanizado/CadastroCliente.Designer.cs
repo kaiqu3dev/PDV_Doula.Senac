@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CadastroCliente));
             btnCadastroCliente_Cadastrar = new Button();
             cbbCadastroCliente_eCivil = new ComboBox();
             label1 = new Label();
@@ -59,13 +60,14 @@
             // 
             // btnCadastroCliente_Cadastrar
             // 
+            btnCadastroCliente_Cadastrar.BackColor = Color.Transparent;
             btnCadastroCliente_Cadastrar.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold);
-            btnCadastroCliente_Cadastrar.Location = new Point(260, 388);
+            btnCadastroCliente_Cadastrar.Location = new Point(257, 387);
             btnCadastroCliente_Cadastrar.Name = "btnCadastroCliente_Cadastrar";
-            btnCadastroCliente_Cadastrar.Size = new Size(75, 23);
+            btnCadastroCliente_Cadastrar.Size = new Size(81, 36);
             btnCadastroCliente_Cadastrar.TabIndex = 0;
             btnCadastroCliente_Cadastrar.Text = "Cadastrar";
-            btnCadastroCliente_Cadastrar.UseVisualStyleBackColor = true;
+            btnCadastroCliente_Cadastrar.UseVisualStyleBackColor = false;
             btnCadastroCliente_Cadastrar.Click += btnCadastroCliente_Cadastrar_Click;
             // 
             // cbbCadastroCliente_eCivil
@@ -82,6 +84,7 @@
             // label1
             // 
             label1.AutoSize = true;
+            label1.BackColor = Color.Transparent;
             label1.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold);
             label1.Location = new Point(25, 64);
             label1.Name = "label1";
@@ -114,6 +117,7 @@
             // label2
             // 
             label2.AutoSize = true;
+            label2.BackColor = Color.Transparent;
             label2.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold);
             label2.Location = new Point(328, 64);
             label2.Name = "label2";
@@ -124,6 +128,7 @@
             // label3
             // 
             label3.AutoSize = true;
+            label3.BackColor = Color.Transparent;
             label3.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold);
             label3.Location = new Point(416, 64);
             label3.Name = "label3";
@@ -134,6 +139,7 @@
             // label4
             // 
             label4.AutoSize = true;
+            label4.BackColor = Color.Transparent;
             label4.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold);
             label4.Location = new Point(25, 134);
             label4.Name = "label4";
@@ -144,6 +150,7 @@
             // label5
             // 
             label5.AutoSize = true;
+            label5.BackColor = Color.Transparent;
             label5.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold);
             label5.Location = new Point(245, 218);
             label5.Name = "label5";
@@ -154,6 +161,7 @@
             // label6
             // 
             label6.AutoSize = true;
+            label6.BackColor = Color.Transparent;
             label6.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold);
             label6.Location = new Point(372, 134);
             label6.Name = "label6";
@@ -164,6 +172,7 @@
             // label7
             // 
             label7.AutoSize = true;
+            label7.BackColor = Color.Transparent;
             label7.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold);
             label7.Location = new Point(25, 218);
             label7.Name = "label7";
@@ -174,6 +183,7 @@
             // label8
             // 
             label8.AutoSize = true;
+            label8.BackColor = Color.Transparent;
             label8.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold);
             label8.Location = new Point(428, 218);
             label8.Name = "label8";
@@ -184,6 +194,7 @@
             // label9
             // 
             label9.AutoSize = true;
+            label9.BackColor = Color.Transparent;
             label9.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold);
             label9.Location = new Point(25, 297);
             label9.Name = "label9";
@@ -251,39 +262,43 @@
             // 
             // btnCadastroCliente_Voltar
             // 
+            btnCadastroCliente_Voltar.BackColor = Color.Transparent;
             btnCadastroCliente_Voltar.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold);
             btnCadastroCliente_Voltar.Location = new Point(25, 454);
             btnCadastroCliente_Voltar.Name = "btnCadastroCliente_Voltar";
-            btnCadastroCliente_Voltar.Size = new Size(75, 23);
+            btnCadastroCliente_Voltar.Size = new Size(81, 36);
             btnCadastroCliente_Voltar.TabIndex = 26;
             btnCadastroCliente_Voltar.Text = "Voltar";
-            btnCadastroCliente_Voltar.UseVisualStyleBackColor = true;
+            btnCadastroCliente_Voltar.UseVisualStyleBackColor = false;
             btnCadastroCliente_Voltar.Click += btnCadastroCliente_Voltar_Click;
             // 
             // btnCadastroCliente_LimparTudo
             // 
+            btnCadastroCliente_LimparTudo.BackColor = Color.Transparent;
             btnCadastroCliente_LimparTudo.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold);
-            btnCadastroCliente_LimparTudo.Location = new Point(483, 450);
+            btnCadastroCliente_LimparTudo.Location = new Point(483, 444);
             btnCadastroCliente_LimparTudo.Name = "btnCadastroCliente_LimparTudo";
-            btnCadastroCliente_LimparTudo.Size = new Size(94, 31);
+            btnCadastroCliente_LimparTudo.Size = new Size(94, 36);
             btnCadastroCliente_LimparTudo.TabIndex = 27;
             btnCadastroCliente_LimparTudo.Text = "Limpar Tudo";
-            btnCadastroCliente_LimparTudo.UseVisualStyleBackColor = true;
+            btnCadastroCliente_LimparTudo.UseVisualStyleBackColor = false;
             btnCadastroCliente_LimparTudo.Click += btnCadastroCliente_LimparTudo_Click;
             // 
             // label12
             // 
             label12.AutoSize = true;
-            label12.Font = new Font("Ink Free", 9.75F, FontStyle.Bold | FontStyle.Italic);
-            label12.Location = new Point(200, 9);
+            label12.BackColor = Color.Transparent;
+            label12.Font = new Font("Ink Free", 18F, FontStyle.Bold | FontStyle.Italic, GraphicsUnit.Point, 0);
+            label12.Location = new Point(131, 9);
             label12.Name = "label12";
-            label12.Size = new Size(194, 16);
+            label12.Size = new Size(332, 30);
             label12.TabIndex = 28;
             label12.Text = "RR Doula e Furo Humanizado";
             // 
             // label10
             // 
             label10.AutoSize = true;
+            label10.BackColor = Color.Transparent;
             label10.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold);
             label10.Location = new Point(199, 134);
             label10.Name = "label10";
@@ -305,6 +320,8 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            BackgroundImage = (Image)resources.GetObject("$this.BackgroundImage");
+            BackgroundImageLayout = ImageLayout.Stretch;
             ClientSize = new Size(595, 510);
             Controls.Add(mskCadastroCliente_CPF);
             Controls.Add(label10);
@@ -331,6 +348,7 @@
             Controls.Add(cbbCadastroCliente_eCivil);
             Controls.Add(btnCadastroCliente_Cadastrar);
             Name = "CadastroCliente";
+            StartPosition = FormStartPosition.CenterScreen;
             Text = "CadastroCliente";
             ((System.ComponentModel.ISupportInitialize)Comfirmaçao_Cadastro_Cliente).EndInit();
             ResumeLayout(false);

@@ -103,6 +103,7 @@
             txtSenha.Name = "txtSenha";
             txtSenha.Size = new Size(170, 18);
             txtSenha.TabIndex = 3;
+            txtSenha.UseSystemPasswordChar = true;
             txtSenha.KeyPress += txtSenha_KeyPress;
             // 
             // txtE_mail

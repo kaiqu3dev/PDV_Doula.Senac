@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TelaDePagamento));
             label1 = new Label();
             label2 = new Label();
             label3 = new Label();
@@ -58,18 +59,20 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label1.Location = new Point(146, 22);
+            label1.BackColor = Color.Transparent;
+            label1.Font = new Font("Segoe UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label1.Location = new Point(118, 9);
             label1.Name = "label1";
-            label1.Size = new Size(78, 17);
+            label1.Size = new Size(124, 30);
             label1.TabIndex = 0;
             label1.Text = "Pagamento";
             // 
             // label2
             // 
             label2.AutoSize = true;
+            label2.BackColor = Color.Transparent;
             label2.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold);
-            label2.Location = new Point(9, 48);
+            label2.Location = new Point(11, 53);
             label2.Name = "label2";
             label2.Size = new Size(45, 17);
             label2.TabIndex = 1;
@@ -78,8 +81,9 @@
             // label3
             // 
             label3.AutoSize = true;
+            label3.BackColor = Color.Transparent;
             label3.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold);
-            label3.Location = new Point(9, 68);
+            label3.Location = new Point(11, 73);
             label3.Name = "label3";
             label3.Size = new Size(63, 17);
             label3.TabIndex = 2;
@@ -88,8 +92,9 @@
             // label4
             // 
             label4.AutoSize = true;
+            label4.BackColor = Color.Transparent;
             label4.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold);
-            label4.Location = new Point(10, 88);
+            label4.Location = new Point(12, 93);
             label4.Name = "label4";
             label4.Size = new Size(61, 17);
             label4.TabIndex = 3;
@@ -98,8 +103,9 @@
             // label5
             // 
             label5.AutoSize = true;
+            label5.BackColor = Color.Transparent;
             label5.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold);
-            label5.Location = new Point(10, 107);
+            label5.Location = new Point(12, 112);
             label5.Name = "label5";
             label5.Size = new Size(64, 17);
             label5.TabIndex = 4;
@@ -108,8 +114,9 @@
             // label6
             // 
             label6.AutoSize = true;
+            label6.BackColor = Color.Transparent;
             label6.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold);
-            label6.Location = new Point(129, 228);
+            label6.Location = new Point(131, 233);
             label6.Name = "label6";
             label6.Size = new Size(47, 17);
             label6.TabIndex = 5;
@@ -117,31 +124,34 @@
             // 
             // btnPagamento_ConfirmarPagamento
             // 
+            btnPagamento_ConfirmarPagamento.BackColor = Color.Transparent;
             btnPagamento_ConfirmarPagamento.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold);
             btnPagamento_ConfirmarPagamento.Location = new Point(97, 357);
             btnPagamento_ConfirmarPagamento.Name = "btnPagamento_ConfirmarPagamento";
             btnPagamento_ConfirmarPagamento.Size = new Size(167, 34);
             btnPagamento_ConfirmarPagamento.TabIndex = 6;
             btnPagamento_ConfirmarPagamento.Text = "Confirmar Pagamento";
-            btnPagamento_ConfirmarPagamento.UseVisualStyleBackColor = true;
+            btnPagamento_ConfirmarPagamento.UseVisualStyleBackColor = false;
             btnPagamento_ConfirmarPagamento.Click += btnPagamento_ConfirmarPagamento_Click;
             // 
             // btnPagamento_Cancelar
             // 
+            btnPagamento_Cancelar.BackColor = Color.Transparent;
             btnPagamento_Cancelar.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold);
-            btnPagamento_Cancelar.Location = new Point(139, 397);
+            btnPagamento_Cancelar.Location = new Point(143, 397);
             btnPagamento_Cancelar.Name = "btnPagamento_Cancelar";
             btnPagamento_Cancelar.Size = new Size(75, 26);
             btnPagamento_Cancelar.TabIndex = 7;
             btnPagamento_Cancelar.Text = "Cancelar";
-            btnPagamento_Cancelar.UseVisualStyleBackColor = true;
+            btnPagamento_Cancelar.UseVisualStyleBackColor = false;
             btnPagamento_Cancelar.Click += btnPagamento_Cancelar_Click;
             // 
             // lblPagemento_Data
             // 
             lblPagemento_Data.AutoSize = true;
+            lblPagemento_Data.BackColor = Color.Transparent;
             lblPagemento_Data.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblPagemento_Data.Location = new Point(53, 48);
+            lblPagemento_Data.Location = new Point(55, 53);
             lblPagemento_Data.Name = "lblPagemento_Data";
             lblPagemento_Data.Size = new Size(15, 17);
             lblPagemento_Data.TabIndex = 8;
@@ -150,8 +160,9 @@
             // lblPagemento_Horario
             // 
             lblPagemento_Horario.AutoSize = true;
+            lblPagemento_Horario.BackColor = Color.Transparent;
             lblPagemento_Horario.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblPagemento_Horario.Location = new Point(71, 68);
+            lblPagemento_Horario.Location = new Point(73, 73);
             lblPagemento_Horario.Name = "lblPagemento_Horario";
             lblPagemento_Horario.Size = new Size(15, 17);
             lblPagemento_Horario.TabIndex = 9;
@@ -160,8 +171,9 @@
             // lblPagamento_Servico
             // 
             lblPagamento_Servico.AutoSize = true;
+            lblPagamento_Servico.BackColor = Color.Transparent;
             lblPagamento_Servico.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblPagamento_Servico.Location = new Point(70, 87);
+            lblPagamento_Servico.Location = new Point(72, 92);
             lblPagamento_Servico.Name = "lblPagamento_Servico";
             lblPagamento_Servico.Size = new Size(15, 17);
             lblPagamento_Servico.TabIndex = 10;
@@ -170,8 +182,9 @@
             // lblPagamento_Pessoas
             // 
             lblPagamento_Pessoas.AutoSize = true;
+            lblPagamento_Pessoas.BackColor = Color.Transparent;
             lblPagamento_Pessoas.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblPagamento_Pessoas.Location = new Point(73, 107);
+            lblPagamento_Pessoas.Location = new Point(75, 112);
             lblPagamento_Pessoas.Name = "lblPagamento_Pessoas";
             lblPagamento_Pessoas.Size = new Size(15, 17);
             lblPagamento_Pessoas.TabIndex = 11;
@@ -189,6 +202,7 @@
             // label7
             // 
             label7.AutoSize = true;
+            label7.BackColor = Color.Transparent;
             label7.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label7.Location = new Point(108, 257);
             label7.Name = "label7";
@@ -199,8 +213,9 @@
             // lblPagemento_DPP
             // 
             lblPagemento_DPP.AutoSize = true;
+            lblPagemento_DPP.BackColor = Color.Transparent;
             lblPagemento_DPP.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblPagemento_DPP.Location = new Point(53, 183);
+            lblPagemento_DPP.Location = new Point(55, 188);
             lblPagemento_DPP.Name = "lblPagemento_DPP";
             lblPagemento_DPP.Size = new Size(15, 17);
             lblPagemento_DPP.TabIndex = 21;
@@ -209,8 +224,9 @@
             // lblPagemento_Local
             // 
             lblPagemento_Local.AutoSize = true;
+            lblPagemento_Local.BackColor = Color.Transparent;
             lblPagemento_Local.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblPagemento_Local.Location = new Point(59, 163);
+            lblPagemento_Local.Location = new Point(61, 168);
             lblPagemento_Local.Name = "lblPagemento_Local";
             lblPagemento_Local.Size = new Size(15, 17);
             lblPagemento_Local.TabIndex = 20;
@@ -219,8 +235,9 @@
             // lblPagemento_Bebe
             // 
             lblPagemento_Bebe.AutoSize = true;
+            lblPagemento_Bebe.BackColor = Color.Transparent;
             lblPagemento_Bebe.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblPagemento_Bebe.Location = new Point(56, 145);
+            lblPagemento_Bebe.Location = new Point(58, 150);
             lblPagemento_Bebe.Name = "lblPagemento_Bebe";
             lblPagemento_Bebe.Size = new Size(15, 17);
             lblPagemento_Bebe.TabIndex = 19;
@@ -229,8 +246,9 @@
             // lblPagemento_Companheiro
             // 
             lblPagemento_Companheiro.AutoSize = true;
+            lblPagemento_Companheiro.BackColor = Color.Transparent;
             lblPagemento_Companheiro.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblPagemento_Companheiro.Location = new Point(108, 125);
+            lblPagemento_Companheiro.Location = new Point(110, 130);
             lblPagemento_Companheiro.Name = "lblPagemento_Companheiro";
             lblPagemento_Companheiro.Size = new Size(15, 17);
             lblPagemento_Companheiro.TabIndex = 18;
@@ -239,8 +257,9 @@
             // label12
             // 
             label12.AutoSize = true;
+            label12.BackColor = Color.Transparent;
             label12.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold);
-            label12.Location = new Point(12, 183);
+            label12.Location = new Point(14, 188);
             label12.Name = "label12";
             label12.Size = new Size(42, 17);
             label12.TabIndex = 17;
@@ -249,8 +268,9 @@
             // label13
             // 
             label13.AutoSize = true;
+            label13.BackColor = Color.Transparent;
             label13.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold);
-            label13.Location = new Point(12, 163);
+            label13.Location = new Point(14, 168);
             label13.Name = "label13";
             label13.Size = new Size(48, 17);
             label13.TabIndex = 16;
@@ -259,8 +279,9 @@
             // label14
             // 
             label14.AutoSize = true;
+            label14.BackColor = Color.Transparent;
             label14.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold);
-            label14.Location = new Point(11, 145);
+            label14.Location = new Point(13, 150);
             label14.Name = "label14";
             label14.Size = new Size(46, 17);
             label14.TabIndex = 15;
@@ -269,8 +290,9 @@
             // label15
             // 
             label15.AutoSize = true;
+            label15.BackColor = Color.Transparent;
             label15.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold);
-            label15.Location = new Point(10, 125);
+            label15.Location = new Point(12, 130);
             label15.Name = "label15";
             label15.Size = new Size(99, 17);
             label15.TabIndex = 14;
@@ -279,8 +301,9 @@
             // lblPagemento_Equipe
             // 
             lblPagemento_Equipe.AutoSize = true;
+            lblPagemento_Equipe.BackColor = Color.Transparent;
             lblPagemento_Equipe.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblPagemento_Equipe.Location = new Point(69, 201);
+            lblPagemento_Equipe.Location = new Point(71, 206);
             lblPagemento_Equipe.Name = "lblPagemento_Equipe";
             lblPagemento_Equipe.Size = new Size(15, 17);
             lblPagemento_Equipe.TabIndex = 23;
@@ -289,8 +312,9 @@
             // label17
             // 
             label17.AutoSize = true;
+            label17.BackColor = Color.Transparent;
             label17.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold);
-            label17.Location = new Point(12, 201);
+            label17.Location = new Point(14, 206);
             label17.Name = "label17";
             label17.Size = new Size(58, 17);
             label17.TabIndex = 22;
@@ -299,8 +323,9 @@
             // lblTelaPagamento_ValoraPagar
             // 
             lblTelaPagamento_ValoraPagar.AutoSize = true;
+            lblTelaPagamento_ValoraPagar.BackColor = Color.Transparent;
             lblTelaPagamento_ValoraPagar.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblTelaPagamento_ValoraPagar.Location = new Point(174, 228);
+            lblTelaPagamento_ValoraPagar.Location = new Point(184, 233);
             lblTelaPagamento_ValoraPagar.Name = "lblTelaPagamento_ValoraPagar";
             lblTelaPagamento_ValoraPagar.Size = new Size(33, 17);
             lblTelaPagamento_ValoraPagar.TabIndex = 24;
@@ -310,6 +335,8 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            BackgroundImage = (Image)resources.GetObject("$this.BackgroundImage");
+            BackgroundImageLayout = ImageLayout.Stretch;
             ClientSize = new Size(360, 450);
             Controls.Add(lblTelaPagamento_ValoraPagar);
             Controls.Add(lblPagemento_Equipe);
@@ -337,6 +364,7 @@
             Controls.Add(label2);
             Controls.Add(label1);
             Name = "TelaDePagamento";
+            StartPosition = FormStartPosition.CenterScreen;
             Text = "TelaDePagamento";
             Load += TelaDePagamento_Load;
             ResumeLayout(false);

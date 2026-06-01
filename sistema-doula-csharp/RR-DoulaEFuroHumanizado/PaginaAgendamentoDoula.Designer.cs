@@ -29,6 +29,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(PaginaAgendamentoDoula));
             monthCalendar1 = new MonthCalendar();
             ccbAgendaDoula_AcompanhamentoParto = new CheckBox();
             ccbAgendaDoula_ConsultaPreNatal = new CheckBox();
@@ -56,6 +57,8 @@
             // 
             // monthCalendar1
             // 
+            monthCalendar1.BackColor = Color.FromArgb(232, 220, 207);
+            monthCalendar1.ForeColor = Color.FromArgb(232, 220, 207);
             monthCalendar1.Location = new Point(43, 3);
             monthCalendar1.Margin = new Padding(0);
             monthCalendar1.MaxDate = new DateTime(2998, 12, 1, 0, 0, 0, 0);
@@ -112,6 +115,7 @@
             // pnlAgendamentoDoula_Horarios
             // 
             pnlAgendamentoDoula_Horarios.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            pnlAgendamentoDoula_Horarios.BackColor = Color.Transparent;
             pnlAgendamentoDoula_Horarios.Location = new Point(0, 124);
             pnlAgendamentoDoula_Horarios.Name = "pnlAgendamentoDoula_Horarios";
             pnlAgendamentoDoula_Horarios.Size = new Size(161, 109);
@@ -153,6 +157,7 @@
             // lblAgendaDoula_ValorTotal
             // 
             lblAgendaDoula_ValorTotal.AutoSize = true;
+            lblAgendaDoula_ValorTotal.BackColor = Color.Transparent;
             lblAgendaDoula_ValorTotal.Font = new Font("Segoe UI Semibold", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
             lblAgendaDoula_ValorTotal.Location = new Point(141, 448);
             lblAgendaDoula_ValorTotal.Name = "lblAgendaDoula_ValorTotal";
@@ -222,19 +227,21 @@
             // 
             // pnl_GrupoDoula
             // 
+            pnl_GrupoDoula.BackColor = Color.Transparent;
             pnl_GrupoDoula.Controls.Add(label1);
             pnl_GrupoDoula.Controls.Add(ccbAgendaDoula_ConsultaPreNatal);
             pnl_GrupoDoula.Controls.Add(ccbAgendaDoula_PosParto);
             pnl_GrupoDoula.Controls.Add(ccbAgendaDoula_Amamentacao);
             pnl_GrupoDoula.Controls.Add(ccbAgendaDoula_AcompanhamentoParto);
             pnl_GrupoDoula.Controls.Add(pnlAgendamentoDoula_Horarios);
-            pnl_GrupoDoula.Location = new Point(5, 175);
+            pnl_GrupoDoula.Location = new Point(1, 175);
             pnl_GrupoDoula.Name = "pnl_GrupoDoula";
             pnl_GrupoDoula.Size = new Size(161, 233);
             pnl_GrupoDoula.TabIndex = 16;
             // 
             // pnl_GrupoFuroDeOrelha
             // 
+            pnl_GrupoFuroDeOrelha.BackColor = Color.Transparent;
             pnl_GrupoFuroDeOrelha.Controls.Add(pnlAgendamentoFuro_Horarios);
             pnl_GrupoFuroDeOrelha.Controls.Add(ccbAgendaFuro_Titanio);
             pnl_GrupoFuroDeOrelha.Controls.Add(label2);
@@ -249,6 +256,7 @@
             // pnlAgendamentoFuro_Horarios
             // 
             pnlAgendamentoFuro_Horarios.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            pnlAgendamentoFuro_Horarios.BackColor = Color.Transparent;
             pnlAgendamentoFuro_Horarios.Location = new Point(0, 124);
             pnlAgendamentoFuro_Horarios.Name = "pnlAgendamentoFuro_Horarios";
             pnlAgendamentoFuro_Horarios.Size = new Size(182, 109);
@@ -266,6 +274,7 @@
             // label3
             // 
             label3.AutoSize = true;
+            label3.BackColor = Color.Transparent;
             label3.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label3.Location = new Point(12, 422);
             label3.Name = "label3";
@@ -277,6 +286,9 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            BackColor = Color.FromArgb(232, 220, 207);
+            BackgroundImage = (Image)resources.GetObject("$this.BackgroundImage");
+            BackgroundImageLayout = ImageLayout.Stretch;
             ClientSize = new Size(353, 566);
             Controls.Add(cbbQuantidadeFuro_Pessoas);
             Controls.Add(pnl_GrupoFuroDeOrelha);
