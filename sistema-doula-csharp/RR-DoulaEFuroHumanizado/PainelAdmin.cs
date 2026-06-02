@@ -3,6 +3,7 @@ using System.Data;
 using MySql.Data.MySqlClient;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Threading.Tasks;
 
 namespace RR_DoulaEFuroHumanizado
 {
@@ -254,7 +255,7 @@ namespace RR_DoulaEFuroHumanizado
                 cbbPainelAdm_NovoHorario.SelectedIndex = 0;
         }
 
-        private void btnPainelAdmin_Reagendar_Click(object sender, EventArgs e)
+        private async void btnPainelAdmin_Reagendar_Click(object sender, EventArgs e)
         {
             if (dgvPainelAdm_Agendamentos.SelectedRows.Count == 0)
             {
@@ -262,44 +263,78 @@ namespace RR_DoulaEFuroHumanizado
                 return;
             }
 
+            DataGridViewRow row = dgvPainelAdm_Agendamentos.SelectedRows[0];
+
+            // --- TRAVA: Verifica se é apenas um cadastro vazio ---
+            string valorId = PegarValorLinha(row, "agendamentoid");
+            if (string.IsNullOrWhiteSpace(valorId) || valorId == "0")
+            {
+                MessageBox.Show("Este usuário é apenas um cadastro e não possui agendamentos.\nImpossível prosseguir com a operação.", "Ação Inválida", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            int agendamentoId = Convert.ToInt32(valorId);
+            string emailCliente = PegarValorLinha(row, "Email");
+            string cpfCliente = PegarValorLinha(row, "CPF");
+
+            // VERIFICAÇÕES DE SEGURANÇA (BLACKLIST E STATUS)
+            using (MySqlConnection conn = new MySqlConnection(Conexao.StringConexao))
+            {
+                conn.Open();
+
+                // Verificação de Blacklist
+                string sqlCheck = "SELECT COUNT(*) FROM blacklist WHERE email = @Email OR cpf = @CPF";
+                using (MySqlCommand cmdCheck = new MySqlCommand(sqlCheck, conn))
+                {
+                    cmdCheck.Parameters.AddWithValue("@Email", emailCliente);
+                    cmdCheck.Parameters.AddWithValue("@CPF", cpfCliente);
+                    if (Convert.ToInt32(cmdCheck.ExecuteScalar()) > 0)
+                    {
+                        MessageBox.Show("ERRO: Este utilizador está na Lista Negra. Operação negada.", "Acesso Negado", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                }
+
+                // Verificação se ainda existem serviços ATIVOS
+                string sqlVerificaStatus = "SELECT COUNT(*) FROM agendamento_servicos WHERE AgendamentoId = @agId AND Status = 'ATIVO'";
+                using (MySqlCommand cmdStatus = new MySqlCommand(sqlVerificaStatus, conn))
+                {
+                    cmdStatus.Parameters.AddWithValue("@agId", agendamentoId);
+                    if (Convert.ToInt32(cmdStatus.ExecuteScalar()) <= 0)
+                    {
+                        MessageBox.Show("Não é possível reagendar: Este agendamento foi CANCELADO ou REEMBOLSADO anteriormente.", "Operação Inválida", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+                }
+            }
+
             if (!AuthPopup.PedirSenhaAdmin()) return;
 
             try
             {
-                DataGridViewRow row = dgvPainelAdm_Agendamentos.SelectedRows[0];
-
-                string strId = PegarValorLinha(row, "agendamentoid");
                 string tipoServico = PegarValorLinha(row, "Tipo");
                 string strData = PegarValorLinha(row, "Data");
                 string horarioAntigo = PegarValorLinha(row, "Horario");
                 string strQtd = PegarValorLinha(row, "QuantidadePessoas");
 
-                if (!int.TryParse(strId, out int agendamentoId))
-                {
-                    MessageBox.Show("Erro: ID do agendamento não encontrado.");
-                    return;
-                }
-
                 if (!DateTime.TryParse(strData, out DateTime dataAntiga))
                 {
-                    MessageBox.Show("Erro: A data original está em um formato inválido.");
+                    MessageBox.Show("Erro: A data original está num formato inválido.");
                     return;
                 }
 
                 if (!int.TryParse(strQtd, out int qtdTotalPessoas)) qtdTotalPessoas = 1;
 
-                //  CAIXINHA DE PERGUNTA (SÓ APARECE SE TIVER MAIS DE 1 PESSOA) 
                 int qtdParaMover = qtdTotalPessoas;
                 if (qtdTotalPessoas > 1)
                 {
                     string resposta = Microsoft.VisualBasic.Interaction.InputBox(
-                        $"Existem {qtdTotalPessoas} pessoas agendadas neste serviço e horário.\nQuantas pessoas você deseja reagendar para o novo horário?",
+                        $"Existem {qtdTotalPessoas} pessoas agendadas neste serviço.\nQuantas deseja reagendar?",
                         "Reagendamento Parcial",
                         qtdTotalPessoas.ToString());
 
                     if (string.IsNullOrWhiteSpace(resposta) || !int.TryParse(resposta, out qtdParaMover) || qtdParaMover <= 0 || qtdParaMover > qtdTotalPessoas)
                     {
-                        MessageBox.Show("Quantidade inválida ou operação cancelada.");
                         return;
                     }
                 }
@@ -307,37 +342,21 @@ namespace RR_DoulaEFuroHumanizado
                 DateTime novaData = dtpPainelAdm_NovaData.Value.Date;
                 string novoHorario = cbbPainelAdm_NovoHorario.Text;
 
-                // TRAVA CONTRA VIAGEM NO TEMPO (Datas e Horários no passado)
-
                 if (novaData < DateTime.Today)
                 {
-                    MessageBox.Show("Operação cancelada: Não é permitido reagendar para um dia que já passou.", "Data Inválida", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return; // Para o código aqui!
+                    MessageBox.Show("Não é permitido reagendar para um dia que já passou.", "Data Inválida", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
                 }
 
-                // Se for hoje, precisa conferir se a hora já não passou
-                if (novaData == DateTime.Today)
-                {
-                    if (TimeSpan.TryParse(novoHorario, out TimeSpan horaEscolhida))
-                    {
-                        // Pega a hora atual do computador
-                        TimeSpan horaAtual = DateTime.Now.TimeOfDay;
-
-                        if (horaEscolhida <= horaAtual)
-                        {
-                            MessageBox.Show("Operação cancelada: Este horário já passou no dia de hoje.", "Horário Inválido", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                            return;
-                        }
-                    }
-                }
-
+                int linhasAfetadas = 0;
                 using (MySqlConnection conn = new MySqlConnection(Conexao.StringConexao))
                 {
                     conn.Open();
 
+                    // Lógica de Validação de Vagas (Doula/Furo)
                     if (tipoServico == "Doula")
                     {
-                        string sqlVerificar = "SELECT COUNT(*) FROM agendamento_servicos WHERE Tipo='Doula' AND Data=@data AND Horario=@horario AND Status<>'CANCELADO' AND AgendamentoId<>@agendamentoId";
+                        string sqlVerificar = "SELECT COUNT(*) FROM agendamento_servicos WHERE Tipo='Doula' AND Data=@data AND Horario=@horario AND Status='ATIVO' AND AgendamentoId<>@agendamentoId";
                         using (MySqlCommand cmdV = new MySqlCommand(sqlVerificar, conn))
                         {
                             cmdV.Parameters.AddWithValue("@data", novaData);
@@ -352,76 +371,71 @@ namespace RR_DoulaEFuroHumanizado
                     }
                     else if (tipoServico == "Furo")
                     {
-                        string sqlVerificarFuro = "SELECT COUNT(*) FROM agendamento_servicos WHERE Tipo='Furo' AND Data=@data AND Horario=@horario AND Status<>'CANCELADO' AND AgendamentoId<>@agendamentoId";
+                        string sqlVerificarFuro = "SELECT COUNT(*) FROM agendamento_servicos WHERE Tipo='Furo' AND Data=@data AND Horario=@horario AND Status='ATIVO' AND AgendamentoId<>@agendamentoId";
                         using (MySqlCommand cmdVF = new MySqlCommand(sqlVerificarFuro, conn))
                         {
                             cmdVF.Parameters.AddWithValue("@data", novaData);
                             cmdVF.Parameters.AddWithValue("@horario", novoHorario);
                             cmdVF.Parameters.AddWithValue("@agendamentoId", agendamentoId);
-
                             int ocupadasNoNovoHorario = Convert.ToInt32(cmdVF.ExecuteScalar());
-
                             if ((ocupadasNoNovoHorario + qtdParaMover) > 3)
                             {
-                                MessageBox.Show($"Capacidade máxima! O novo horário possui apenas {3 - ocupadasNoNovoHorario} vaga(s) livre(s), mas você está tentando mover {qtdParaMover} pessoa(s).");
+                                MessageBox.Show($"Capacidade máxima excedida no novo horário!");
                                 return;
                             }
                         }
                     }
 
-                    // Move apenas a quantidade que o usuário digitou usando o LIMIT
-                    string sql = $"UPDATE agendamento_servicos SET Data=@novaData, Horario=@novoHorario WHERE AgendamentoId=@agendamentoId AND Tipo=@tipo AND Data=@dataAntiga AND Horario=@horarioAntigo AND Status='ATIVO' LIMIT {qtdParaMover}";
+                    // UPDATE com verificação de status ATIVO
+                    string sql = "UPDATE agendamento_servicos SET Data=@novaData, Horario=@novoHorario WHERE AgendamentoId=@agId AND Tipo=@tipo AND Data=@dataAntiga AND Horario=@horarioAntigo AND Status='ATIVO' LIMIT @limite";
                     using (MySqlCommand cmd = new MySqlCommand(sql, conn))
                     {
                         cmd.Parameters.AddWithValue("@novaData", novaData);
                         cmd.Parameters.AddWithValue("@novoHorario", novoHorario);
-                        cmd.Parameters.AddWithValue("@agendamentoId", agendamentoId);
+                        cmd.Parameters.AddWithValue("@agId", agendamentoId);
                         cmd.Parameters.AddWithValue("@tipo", tipoServico);
                         cmd.Parameters.AddWithValue("@dataAntiga", dataAntiga);
                         cmd.Parameters.AddWithValue("@horarioAntigo", horarioAntigo);
-                        cmd.ExecuteNonQuery();
+                        cmd.Parameters.AddWithValue("@limite", qtdParaMover);
+
+                        linhasAfetadas = cmd.ExecuteNonQuery();
                     }
 
-                    string sqlZerarAvisos = "UPDATE agendamentos SET Notificacao24hEnviada = 0, Notificacao1hEnviada = 0 WHERE Id = @agendamentoId";
-                    using (MySqlCommand cmdReset = new MySqlCommand(sqlZerarAvisos, conn))
+                    if (linhasAfetadas == 0)
                     {
-                        cmdReset.Parameters.AddWithValue("@agendamentoId", agendamentoId);
+                        MessageBox.Show("Falha ao reagendar: O agendamento pode ter sido cancelado ou já foi modificado.");
+                        return;
+                    }
+
+                    // Reset de avisos
+                    string sqlZerar = "UPDATE agendamentos SET Notificacao24hEnviada = 0, Notificacao1hEnviada = 0 WHERE Id = @agId";
+                    using (MySqlCommand cmdReset = new MySqlCommand(sqlZerar, conn))
+                    {
+                        cmdReset.Parameters.AddWithValue("@agId", agendamentoId);
                         cmdReset.ExecuteNonQuery();
                     }
                 }
 
-                //  INÍCIO DO ENVIO DE E-MAIL (REAGENDAMENTO) 
+                // ENVIO DE E-MAIL (ASSÍNCRONO)
                 try
                 {
-                    string emailCliente = PegarValorLinha(row, "Email");
                     string nomeCliente = PegarValorLinha(row, "Nome");
                     EmailService emailService = CriarEmailService();
+                    string assuntoCliente = "Aviso de Reagendamento";
+                    string corpoCliente = $@"Olá, {nomeCliente}! O seu agendamento foi reagendado para {novaData:dd/MM/yyyy} às {novoHorario}.";
 
-                    string assuntoCliente = "Aviso de Reagendamento de Serviço";
-                    string corpoCliente = $@"Olá, {nomeCliente}!
+                    await Task.Run(() =>
+                    {
+                        emailService.EnviarEmail(emailCliente, assuntoCliente, corpoCliente);
+                    });
 
-O seu agendamento ({qtdParaMover} pessoa(s) no serviço de {tipoServico}) foi reagendado com sucesso pela nossa equipe.
-
-Nova Data: {novaData:dd/MM/yyyy}
-Novo Horário: {novoHorario}
-
-Qualquer dúvida, estamos à disposição!";
-                    emailService.EnviarEmail(emailCliente, assuntoCliente, corpoCliente);
-
-                    string assuntoDono = $"🔄 REAGENDAMENTO: {nomeCliente}";
-                    string corpoDono = $@"Atenção, equipe! 
-Um serviço foi reagendado através do Painel Admin.
-
-Cliente: {nomeCliente} ({emailCliente})
-Quantidade alterada: {qtdParaMover} pessoa(s)
-Serviço: {tipoServico}
-Nova Data: {novaData:dd/MM/yyyy} às {novoHorario}";
-                    emailService.EnviarEmail("projetodoulaefuro01@gmail.com", assuntoDono, corpoDono);
+                    MessageBox.Show("Agendamento reagendado com sucesso!");
                 }
-                catch { }
-                //  FIM DO ENVIO DE E-MAIL 
+                catch (Exception exEmail)
+                {
+                    MessageBox.Show($"Reagendado, mas erro ao enviar e-mail: {exEmail.Message}");
+                }
 
-                MessageBox.Show($"Agendamento de {tipoServico} reagendado com sucesso para {novaData:dd/MM/yyyy} às {novoHorario}!");
                 CarregarAgendamentos();
             }
             catch (Exception ex)
@@ -430,7 +444,7 @@ Nova Data: {novaData:dd/MM/yyyy} às {novoHorario}";
             }
         }
 
-        private void btnPainelAdmin_Reembolsar_Click(object sender, EventArgs e)
+        private async void btnPainelAdmin_Reembolsar_Click(object sender, EventArgs e)
         {
             if (dgvPainelAdm_Agendamentos.SelectedRows.Count == 0)
             {
@@ -438,13 +452,57 @@ Nova Data: {novaData:dd/MM/yyyy} às {novoHorario}";
                 return;
             }
 
+            DataGridViewRow row = dgvPainelAdm_Agendamentos.SelectedRows[0];
+
+            // --- TRAVA: Verifica se é apenas um cadastro vazio ---
+            string valorId = PegarValorLinha(row, "agendamentoid");
+            if (string.IsNullOrWhiteSpace(valorId) || valorId == "0")
+            {
+                MessageBox.Show("Este usuário é apenas um cadastro e não possui agendamentos.\nImpossível prosseguir com a operação.", "Ação Inválida", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            int agendamentoId = Convert.ToInt32(valorId);
+            string emailCliente = PegarValorLinha(row, "Email");
+            string cpfCliente = PegarValorLinha(row, "CPF");
+
+            // VERIFICAÇÕES DE SEGURANÇA (BLACKLIST E STATUS)
+            using (MySqlConnection conn = new MySqlConnection(Conexao.StringConexao))
+            {
+                conn.Open();
+
+                // Verificação de Blacklist
+                string sqlCheck = "SELECT COUNT(*) FROM blacklist WHERE email = @Email OR cpf = @CPF";
+                using (MySqlCommand cmdCheck = new MySqlCommand(sqlCheck, conn))
+                {
+                    cmdCheck.Parameters.AddWithValue("@Email", emailCliente);
+                    cmdCheck.Parameters.AddWithValue("@CPF", cpfCliente);
+                    if (Convert.ToInt32(cmdCheck.ExecuteScalar()) > 0)
+                    {
+                        MessageBox.Show("ERRO: Este utilizador está na Lista Negra. Operação negada.", "Acesso Negado", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                }
+
+                // Verificação se ainda existem serviços ATIVOS
+                string sqlVerificaStatus = "SELECT COUNT(*) FROM agendamento_servicos WHERE AgendamentoId = @agId AND Status = 'ATIVO'";
+                using (MySqlCommand cmdStatus = new MySqlCommand(sqlVerificaStatus, conn))
+                {
+                    cmdStatus.Parameters.AddWithValue("@agId", agendamentoId);
+                    int totalAtivos = Convert.ToInt32(cmdStatus.ExecuteScalar());
+
+                    if (totalAtivos <= 0)
+                    {
+                        MessageBox.Show("Este serviço já foi CANCELADO ou REEMBOLSADO totalmente.", "Operação Inválida", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        return;
+                    }
+                }
+            }
+
             if (!AuthPopup.PedirSenhaAdmin()) return;
 
             try
             {
-                DataGridViewRow row = dgvPainelAdm_Agendamentos.SelectedRows[0];
-
-                int agendamentoId = Convert.ToInt32(PegarValorLinha(row, "agendamentoid"));
                 string tipoServico = PegarValorLinha(row, "Tipo");
                 DateTime dataOriginal = Convert.ToDateTime(PegarValorLinha(row, "Data"));
                 string horarioOriginal = PegarValorLinha(row, "Horario");
@@ -452,30 +510,26 @@ Nova Data: {novaData:dd/MM/yyyy} às {novoHorario}";
 
                 if (!int.TryParse(strQtd, out int qtdTotalPessoas)) qtdTotalPessoas = 1;
 
-                //  CAIXINHA DE PERGUNTA (SÓ APARECE SE TIVER MAIS DE 1 PESSOA) 
                 int qtdParaCancelar = qtdTotalPessoas;
                 if (qtdTotalPessoas > 1)
                 {
                     string resposta = Microsoft.VisualBasic.Interaction.InputBox(
-                        $"Existem {qtdTotalPessoas} pessoas agendadas neste serviço e horário.\nQuantas pessoas você deseja CANCELAR/REEMBOLSAR?",
+                        $"Existem {qtdTotalPessoas} pessoas agendadas neste serviço.\nQuantas deseja CANCELAR/REEMBOLSAR?",
                         "Cancelamento Parcial",
                         qtdTotalPessoas.ToString());
 
                     if (string.IsNullOrWhiteSpace(resposta) || !int.TryParse(resposta, out qtdParaCancelar) || qtdParaCancelar <= 0 || qtdParaCancelar > qtdTotalPessoas)
                     {
-                        MessageBox.Show("Quantidade inválida ou operação cancelada.");
                         return;
                     }
                 }
 
-                string emailCliente = PegarValorLinha(row, "Email");
                 string nomeCliente = PegarValorLinha(row, "Nome");
+                int linhasAfetadas = 0;
 
                 using (MySqlConnection conn = new MySqlConnection(Conexao.StringConexao))
                 {
                     conn.Open();
-
-                    // Cancela apenas a quantidade digitada usando o LIMIT
                     string sql = $"UPDATE agendamento_servicos SET Status='CANCELADO' WHERE AgendamentoId=@agId AND Tipo=@tipo AND Data=@data AND Horario=@horario AND Status='ATIVO' LIMIT {qtdParaCancelar}";
 
                     using (MySqlCommand cmd = new MySqlCommand(sql, conn))
@@ -484,38 +538,40 @@ Nova Data: {novaData:dd/MM/yyyy} às {novoHorario}";
                         cmd.Parameters.AddWithValue("@tipo", tipoServico);
                         cmd.Parameters.AddWithValue("@data", dataOriginal.Date);
                         cmd.Parameters.AddWithValue("@horario", horarioOriginal);
-                        cmd.ExecuteNonQuery();
+
+                        linhasAfetadas = cmd.ExecuteNonQuery();
                     }
                 }
 
-                //  INÍCIO DO ENVIO DE E-MAIL (CANCELAMENTO) 
+                if (linhasAfetadas == 0)
+                {
+                    MessageBox.Show("Não foi possível realizar o cancelamento. Verifique se o status já foi alterado por outro utilizador.");
+                    return;
+                }
+
+                // INÍCIO DO ENVIO DE E-MAIL
                 try
                 {
                     EmailService emailService = CriarEmailService();
-
                     string assuntoCliente = "Aviso de Cancelamento e Reembolso";
-                    string corpoCliente = $@"Olá, {nomeCliente}.
-
-Informamos que o agendamento de {qtdParaCancelar} pessoa(s) no serviço de {tipoServico} para o dia {dataOriginal:dd/MM/yyyy} foi cancelado e o processo de reembolso foi iniciado pela nossa equipe.
-
-Lamentamos o imprevisto e esperamos ver você em breve.";
-                    emailService.EnviarEmail(emailCliente, assuntoCliente, corpoCliente);
+                    string corpoCliente = $@"Olá, {nomeCliente}. Informamos que o agendamento de {qtdParaCancelar} pessoa(s) no serviço de {tipoServico} para o dia {dataOriginal:dd/MM/yyyy} foi cancelado e o processo de reembolso foi iniciado.";
 
                     string assuntoDono = $"❌ CANCELAMENTO/REEMBOLSO: {nomeCliente}";
-                    string corpoDono = $@"Atenção, equipe!
+                    string corpoDono = $@"Atenção! Cliente: {nomeCliente} ({emailCliente}) Quantidade Cancelada: {qtdParaCancelar} pessoa(s).";
 
-Um serviço foi CANCELADO e marcado para reembolso no Painel Admin.
+                    await Task.Run(() =>
+                    {
+                        emailService.EnviarEmail(emailCliente, assuntoCliente, corpoCliente);
+                        emailService.EnviarEmail("projetodoulaefuro01@gmail.com", assuntoDono, corpoDono);
+                    });
 
-Cliente: {nomeCliente} ({emailCliente})
-Quantidade Cancelada: {qtdParaCancelar} pessoa(s)
-Serviço: {tipoServico}
-Data que estava marcada: {dataOriginal:dd/MM/yyyy}";
-                    emailService.EnviarEmail("projetodoulaefuro01@gmail.com", assuntoDono, corpoDono);
+                    MessageBox.Show("Operação autorizada e serviço atualizado com sucesso!");
                 }
-                catch { }
-                //  FIM DO ENVIO DE E-MAIL 
+                catch (Exception exEmail)
+                {
+                    MessageBox.Show($"O serviço foi cancelado, mas houve um erro ao enviar o e-mail: {exEmail.Message}");
+                }
 
-                MessageBox.Show("Operação autorizada e serviço atualizado com sucesso!");
                 CarregarAgendamentos();
             }
             catch (Exception ex)
@@ -596,11 +652,30 @@ Data que estava marcada: {dataOriginal:dd/MM/yyyy}";
             {
                 DataGridViewRow row = dgvPainelAdm_Agendamentos.SelectedRows[0];
                 string emailCliente = PegarValorLinha(row, "Email");
+                string cpfCliente = PegarValorLinha(row, "CPF");
 
                 if (string.IsNullOrWhiteSpace(emailCliente))
                 {
                     MessageBox.Show("O item selecionado não possui um e-mail válido.");
                     return;
+                }
+
+                //  INÍCIO DA VERIFICAÇÃO DE BLOQUEIO (BLACKLIST) 
+                using (MySqlConnection connCheck = new MySqlConnection(Conexao.StringConexao))
+                {
+                    connCheck.Open();
+                    string sqlCheck = "SELECT COUNT(*) FROM blacklist WHERE email = @Email OR cpf = @CPF";
+                    using (MySqlCommand cmdCheck = new MySqlCommand(sqlCheck, connCheck))
+                    {
+                        cmdCheck.Parameters.AddWithValue("@Email", emailCliente);
+                        cmdCheck.Parameters.AddWithValue("@CPF", cpfCliente);
+
+                        if (Convert.ToInt32(cmdCheck.ExecuteScalar()) > 0)
+                        {
+                            MessageBox.Show("ERRO: Este usuário está na Lista Negra.\nNão é possível criar novos agendamentos para usuários bloqueados.", "Acesso Negado", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
+                        }
+                    }
                 }
 
                 long idClienteEncontrado = 0;
@@ -631,7 +706,6 @@ Data que estava marcada: {dataOriginal:dd/MM/yyyy}";
                 PaginaAgendamentoDoula D = new PaginaAgendamentoDoula(idClienteEncontrado, emailCliente);
                 D.ShowDialog();
 
-                //  Quando a tela fecha, atualiza o painel
                 CarregarAgendamentos();
             }
             catch (Exception ex)
@@ -645,10 +719,9 @@ Data que estava marcada: {dataOriginal:dd/MM/yyyy}";
             //  Pede a senha para garantir a segurança
             if (!AuthPopup.PedirSenhaAdmin()) return;
 
-            //  O padrão é sempre funcionário
             string tipoParaCadastrar = "FUNCIONARIO";
 
-            //  Se for o ADM principal, o sistema faz a pergunta
+            // Se for o ADM principal, o sistema faz a pergunta
             if (tipoUsuario == "ADM")
             {
                 DialogResult escolha = MessageBox.Show(
@@ -660,10 +733,8 @@ Data que estava marcada: {dataOriginal:dd/MM/yyyy}";
                     MessageBoxIcon.Question
                 );
 
-                // Se ele cancelar ou fechar a janela, aborta a ação
                 if (escolha == DialogResult.Cancel) return;
 
-                // Se ele disser SIM, mudamos a variável para criar um Sub-Adm
                 if (escolha == DialogResult.Yes)
                 {
                     tipoParaCadastrar = "SUBADM";
@@ -672,7 +743,6 @@ Data que estava marcada: {dataOriginal:dd/MM/yyyy}";
 
             try
             {
-                //  Abre a tela de cadastro já sabendo quem vai ser salvo!
                 TelaDeCadastro telaCadastro = new TelaDeCadastro(tipoParaCadastrar);
                 telaCadastro.ShowDialog();
             }
@@ -714,7 +784,6 @@ Data que estava marcada: {dataOriginal:dd/MM/yyyy}";
                 return;
             }
 
-            // VERIFICA SE O USUÁRIO JÁ ESTÁ BLOQUEADO (Usando o CPF único)
             try
             {
                 using (MySqlConnection conn = new MySqlConnection(Conexao.StringConexao))
@@ -726,7 +795,6 @@ Data que estava marcada: {dataOriginal:dd/MM/yyyy}";
                         cmdCheck.Parameters.AddWithValue("@CPF", cpfUsuario);
                         object result = cmdCheck.ExecuteScalar();
 
-                        // Se o resultado já for BLOQUEADO, avisa e encerra!
                         if (result != null && result.ToString().ToUpper() == "BLOQUEADO")
                         {
                             MessageBox.Show("Ação cancelada: Este usuário já se encontra BLOQUEADO no sistema.", "Usuário já bloqueado", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -741,7 +809,6 @@ Data que estava marcada: {dataOriginal:dd/MM/yyyy}";
                 return;
             }
 
-            // Confirmação dupla para evitar cliques acidentais
             DialogResult confirmacao = MessageBox.Show(
                 $"Tem certeza que deseja BLOQUEAR permanentemente o usuário:\n\n{nomeUsuario}?\n\nEle não poderá mais acessar o sistema ou fazer agendamentos.",
                 "Confirmação de Bloqueio (Lista Negra)",
@@ -751,10 +818,8 @@ Data que estava marcada: {dataOriginal:dd/MM/yyyy}";
 
             if (confirmacao != DialogResult.Yes) return;
 
-            // Barreira de Segurança: Pede a senha do ADM
             if (!AuthPopup.PedirSenhaAdmin()) return;
 
-            // Salva na Blacklist e Altera o Status
             try
             {
                 using (MySqlConnection conn = new MySqlConnection(Conexao.StringConexao))
@@ -817,7 +882,7 @@ Data que estava marcada: {dataOriginal:dd/MM/yyyy}";
         {
             CadastroCliente telaCadastro = new CadastroCliente();
 
-           
+            this.Hide();
 
             if (telaCadastro.ShowDialog() == DialogResult.OK)
             {
@@ -840,10 +905,6 @@ Data que estava marcada: {dataOriginal:dd/MM/yyyy}";
             );
         }
 
-        private void label2_Click(object sender, EventArgs e)
-        {
-
-        }
     }
 
 }

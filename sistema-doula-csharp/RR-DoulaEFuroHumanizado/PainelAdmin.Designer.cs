@@ -133,7 +133,6 @@
             label2.Size = new Size(47, 17);
             label2.TabIndex = 9;
             label2.Text = "E-mail";
-            label2.Click += label2_Click;
             // 
             // label3
             // 
@@ -367,7 +366,7 @@
             Controls.Add(dgvPainelAdm_Agendamentos);
             Name = "PainelAdmin";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "PainelAdmin";
+            Text = "RR Doula e Furo Humanizado";
             Load += PainelAdmin_Load;
             ((System.ComponentModel.ISupportInitialize)dgvPainelAdm_Agendamentos).EndInit();
             panel1.ResumeLayout(false);

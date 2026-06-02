@@ -140,7 +140,7 @@
             MinimizeBox = false;
             Name = "PaginaLogin";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "Form1";
+            Text = "RR Doula e Furo Humanizado";
             Load += Form1_Load;
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             pictureBox1.ResumeLayout(false);

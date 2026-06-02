@@ -349,7 +349,7 @@
             Controls.Add(btnCadastroCliente_Cadastrar);
             Name = "CadastroCliente";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "CadastroCliente";
+            Text = "Cadastro de Cliente";
             ((System.ComponentModel.ISupportInitialize)Comfirmaçao_Cadastro_Cliente).EndInit();
             ResumeLayout(false);
             PerformLayout();

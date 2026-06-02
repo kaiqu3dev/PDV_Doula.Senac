@@ -365,7 +365,7 @@
             Controls.Add(label1);
             Name = "TelaDePagamento";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "TelaDePagamento";
+            Text = "Pagamento";
             Load += TelaDePagamento_Load;
             ResumeLayout(false);
             PerformLayout();

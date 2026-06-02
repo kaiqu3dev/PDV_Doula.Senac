@@ -113,7 +113,7 @@
             Controls.Add(dgvTelaServical_Comanda);
             Name = "TelaDeServicos";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "TelaDeServicos";
+            Text = "Serviços";
             ((System.ComponentModel.ISupportInitialize)dgvTelaServical_Comanda).EndInit();
             panel1.ResumeLayout(false);
             panel1.PerformLayout();

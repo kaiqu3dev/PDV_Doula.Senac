@@ -304,7 +304,7 @@
             MinimizeBox = false;
             Name = "PaginaAgendamentoDoula";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "Pagina de Agendamento";
+            Text = "Agendamento";
             Load += PaginaAgendamentoDoula_Load;
             pnl_GrupoDoula.ResumeLayout(false);
             pnl_GrupoDoula.PerformLayout();

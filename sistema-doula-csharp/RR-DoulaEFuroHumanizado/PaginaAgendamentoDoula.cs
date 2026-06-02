@@ -53,9 +53,8 @@ namespace RR_DoulaEFuroHumanizado
 
             idDoCliente = idCliente;
             emailDoUsuario = email;
-            dataSelecionada = DateTime.MinValue; 
+            dataSelecionada = DateTime.MinValue;
         }
-
 
         public PaginaAgendamentoDoula(Agendamento agendamento, string email)
         {
@@ -87,17 +86,14 @@ namespace RR_DoulaEFuroHumanizado
         {
             InitializeComponent();
 
-            // Mantém as lógicas da tela
             emailDoUsuario = emailFuncionario;
             dataSelecionada = DateTime.MinValue;
 
-            // Guarda os dados do cliente na memória para usar na hora de salvar o agendamento no banco
             nomeDoCliente = nomeCliente;
             emailDoCliente = emailCliente;
             telefoneDoCliente = telefoneCliente;
             cpfDoCliente = cpfCliente;
         }
-
 
         private void PaginaAgendamentoDoula_Load(object sender, EventArgs e)
         {
@@ -427,7 +423,6 @@ WHERE Data = @Data
 
         private decimal CalcularValorServicos()
         {
-            // Calcula a Doula (A doula multiplica pelos horários, pois cada horário é um serviço distinto)
             decimal totalDoula = 0;
             if (ccbAgendaDoula_ConsultaPreNatal.Checked) totalDoula += 100;
             if (ccbAgendaDoula_AcompanhamentoParto.Checked) totalDoula += 300;
@@ -439,7 +434,6 @@ WHERE Data = @Data
                 totalDoula *= horariosSelecionadosDoula.Count;
             }
 
-            // Calcula o Furo (SOMA APENAS OS ITENS, SEM MULTIPLICAR PELAS PESSOAS!)
             decimal totalFuro = 0;
             if (ccbAgendaFuro_Titanio.Checked) totalFuro += 80;
             if (ccbAgendaFuro_Aco.Checked) totalFuro += 60;
@@ -492,17 +486,14 @@ WHERE Data = @Data
     string localParto,
     DateTime dpp,
     string equipeMedica)
-{
-    using (MySqlConnection conn = new MySqlConnection(Conexao.StringConexao))
-    {
-        conn.Open();
-
-        //  ATUALIZA OS DADOS DA GESTANTE NA TABELA 'CLIENTES'
-        // Como essas informações pertencem à cliente e não ao agendamento em si,
-        // nós salvamos diretamente no perfil dela usando o ID que veio da tela de cadastro.
-        if (!modoReagendamento)
         {
-            string queryUpdateCliente = @"
+            using (MySqlConnection conn = new MySqlConnection(Conexao.StringConexao))
+            {
+                conn.Open();
+
+                if (!modoReagendamento)
+                {
+                    string queryUpdateCliente = @"
                 UPDATE clientes SET 
                     NomeCompanheiro = @NomeCompanheiro, 
                     NomeBebe = @NomeBebe, 
@@ -511,44 +502,41 @@ WHERE Data = @Data
                     EquipeMedica = @EquipeMedica
                 WHERE Id = @ClienteId";
 
-            using (MySqlCommand cmdCliente = new MySqlCommand(queryUpdateCliente, conn))
-            {
-                cmdCliente.Parameters.AddWithValue("@ClienteId", idDoCliente);
-                
-                cmdCliente.Parameters.AddWithValue("@NomeCompanheiro", string.IsNullOrWhiteSpace(nomeCompanheiro) ? (object)DBNull.Value : nomeCompanheiro);
-                cmdCliente.Parameters.AddWithValue("@NomeBebe", string.IsNullOrWhiteSpace(nomeBebe) ? (object)DBNull.Value : nomeBebe);
-                cmdCliente.Parameters.AddWithValue("@LocalParto", string.IsNullOrWhiteSpace(localParto) ? (object)DBNull.Value : localParto);
-                cmdCliente.Parameters.AddWithValue("@DPP", dpp == DateTime.MinValue ? (object)DBNull.Value : dpp.Date);
-                cmdCliente.Parameters.AddWithValue("@EquipeMedica", string.IsNullOrWhiteSpace(equipeMedica) ? (object)DBNull.Value : equipeMedica);
-                
-                cmdCliente.ExecuteNonQuery();
-            }
-        }
+                    using (MySqlCommand cmdCliente = new MySqlCommand(queryUpdateCliente, conn))
+                    {
+                        cmdCliente.Parameters.AddWithValue("@ClienteId", idDoCliente);
 
-        // SALVA A CAPA DO AGENDAMENTO NA TABELA 'AGENDAMENTOS'
-        // Pegamos o primeiro horário escolhido apenas para constar na capa. 
-        // Os detalhes reais de cada serviço vão para a tabela 'agendamento_servicos' depois.
-        string primeiroHorario = horariosSelecionadosDoula.FirstOrDefault() ?? quantidadeFuroPorHorario.Keys.FirstOrDefault() ?? "00:00";
+                        cmdCliente.Parameters.AddWithValue("@NomeCompanheiro", string.IsNullOrWhiteSpace(nomeCompanheiro) ? (object)DBNull.Value : nomeCompanheiro);
+                        cmdCliente.Parameters.AddWithValue("@NomeBebe", string.IsNullOrWhiteSpace(nomeBebe) ? (object)DBNull.Value : nomeBebe);
+                        cmdCliente.Parameters.AddWithValue("@LocalParto", string.IsNullOrWhiteSpace(localParto) ? (object)DBNull.Value : localParto);
+                        cmdCliente.Parameters.AddWithValue("@DPP", dpp == DateTime.MinValue ? (object)DBNull.Value : dpp.Date);
+                        cmdCliente.Parameters.AddWithValue("@EquipeMedica", string.IsNullOrWhiteSpace(equipeMedica) ? (object)DBNull.Value : equipeMedica);
 
-        string queryAgendamento = @"
+                        cmdCliente.ExecuteNonQuery();
+                    }
+                }
+
+                string primeiroHorario = horariosSelecionadosDoula.FirstOrDefault() ?? quantidadeFuroPorHorario.Keys.FirstOrDefault() ?? "00:00";
+
+                string queryAgendamento = @"
             INSERT INTO agendamentos
             (ClienteId, DataAgendamento, HoraAgendamento, QuantidadePessoas, ValorTotal, StatusPagamento, StatusServico)
             VALUES
             (@ClienteId, @DataAgendamento, @HoraAgendamento, @QuantidadePessoas, @ValorTotal, 'PENDENTE', 'AGENDADO');
             SELECT LAST_INSERT_ID();";
 
-        using (MySqlCommand cmdAgendamento = new MySqlCommand(queryAgendamento, conn))
-        {
-            cmdAgendamento.Parameters.AddWithValue("@ClienteId", idDoCliente); // O ID que passamos da tela de cadastro
-            cmdAgendamento.Parameters.AddWithValue("@DataAgendamento", data.Date);
-            cmdAgendamento.Parameters.AddWithValue("@HoraAgendamento", primeiroHorario);
-            cmdAgendamento.Parameters.AddWithValue("@QuantidadePessoas", quantidadePessoasFuro == 0 ? 1 : quantidadePessoasFuro);
-            cmdAgendamento.Parameters.AddWithValue("@ValorTotal", total);
+                using (MySqlCommand cmdAgendamento = new MySqlCommand(queryAgendamento, conn))
+                {
+                    cmdAgendamento.Parameters.AddWithValue("@ClienteId", idDoCliente);
+                    cmdAgendamento.Parameters.AddWithValue("@DataAgendamento", data.Date);
+                    cmdAgendamento.Parameters.AddWithValue("@HoraAgendamento", primeiroHorario);
+                    cmdAgendamento.Parameters.AddWithValue("@QuantidadePessoas", quantidadePessoasFuro == 0 ? 1 : quantidadePessoasFuro);
+                    cmdAgendamento.Parameters.AddWithValue("@ValorTotal", total);
 
-            return Convert.ToInt32(cmdAgendamento.ExecuteScalar());
+                    return Convert.ToInt32(cmdAgendamento.ExecuteScalar());
+                }
+            }
         }
-    }
-}
 
         private void InserirItemServico(MySqlConnection conn, int agendamentoId, DateTime data, string tipo, string horario, string servico, decimal valor)
         {
@@ -622,7 +610,6 @@ VALUES
             {
                 conn.Open();
 
-                // Verifica se ainda existe algum serviço ativo nesse agendamento e recalcula o valor
                 string sqlUpdate = @"
             UPDATE agendamentos 
             SET ValorTotal = IFNULL((SELECT SUM(Valor) FROM agendamento_servicos WHERE AgendamentoId = @Id AND Status = 'ATIVO'), 0),
@@ -643,7 +630,6 @@ VALUES
             {
                 conn.Open();
 
-                // Remove notificações pendentes antigas desse agendamento para não enviar alertas errados
                 string sql = "DELETE FROM notificacoes WHERE AgendamentoId = @Id AND Status = 'PENDENTE'";
 
                 using (MySqlCommand cmd = new MySqlCommand(sql, conn))
@@ -734,7 +720,6 @@ Sistema Doula Automático";
             }
             catch
             {
-                // Fica vazio para não mostrar erro na tela do cliente se o aviso da equipe falhar
             }
         }
 
@@ -889,19 +874,30 @@ Equipe Doula e Furo Humanizado";
                     ccbAgendaFuro_Ouro.Checked ||
                     ccbAgendaFuro_Prata.Checked;
 
+                // --- INÍCIO DA VALIDAÇÃO BIDIRECIONAL CRUZADA ---
                 if (temHorarioDoula && !servicoDoulaSelecionado)
                 {
-                    MessageBox.Show("Selecione pelo menos um serviço da doula!");
+                    MessageBox.Show("Você escolheu um horário na agenda da Doula, mas não marcou qual serviço ela fará!");
+                    return;
+                }
+                if (servicoDoulaSelecionado && !temHorarioDoula)
+                {
+                    MessageBox.Show("Você marcou um serviço de Doula, mas não escolheu nenhum horário para ela!");
                     return;
                 }
 
                 if (temHorarioFuro && !servicoFuroSelecionado)
                 {
-                    MessageBox.Show("Selecione pelo menos um tipo de furo!");
+                    MessageBox.Show("Você escolheu um horário para o Furo, mas não escolheu a joia!");
                     return;
                 }
+                if (servicoFuroSelecionado && !temHorarioFuro)
+                {
+                    MessageBox.Show("Você marcou uma joia de Furo, mas não escolheu nenhum horário para o Furo!");
+                    return;
+                }
+                // --- FIM DA VALIDAÇÃO BIDIRECIONAL ---
 
-               
                 // TRAVA DE SEGURANÇA: VERIFICAÇÃO DE VAGAS NO BANCO DE DADOS
                 if (temHorarioFuro && !modoReagendamento)
                 {
@@ -1145,7 +1141,6 @@ Equipe Doula e Furo Humanizado";
                     AtualizarResumoAgendamentoPai(AgendamentoIdPai.Value);
                     ResetarFlagsNotificacao(AgendamentoIdPai.Value);
 
-                    // Tratamento caso o emailDoCliente não exista neste contexto, garante o email do usuário
                     string emailDestinoReagendamento = emailDoUsuario;
 
                     EnviarConfirmacaoDeAgendamento(
@@ -1166,18 +1161,15 @@ Equipe Doula e Furo Humanizado";
                 // LÓGICA DE AGENDAMENTO NOVO E SIMULAÇÃO DE PAGAMENTO
                 else
                 {
-                    //  ABRE A TELA DE PAGAMENTO PRIMEIRO!
                     TelaDePagamento telaPagamento = new TelaDePagamento(
                         dataSelecionada, string.Join(",", horariosSelecionadosDoula), string.Join(", ", servicos),
                         total, quantidadePessoasFuro, 0, nomeCompanheiro, nomeBebe, localParto, dpp, equipeMedica
                     );
 
-                    // SÓ CONTINUA SE A PESSOA CLICAR EM "CONFIRMAR PAGAMENTO" LÁ NA TELA
                     if (telaPagamento.ShowDialog() == DialogResult.OK)
                     {
                         string formaEscolhida = telaPagamento.FormaEscolhida;
 
-                        //  AGORA SIM, SALVA NO BANCO DE DADOS
                         int idAgendamento = SalvarAgendamentoCabecalho(
                             emailDoUsuario, dataSelecionada, total, quantidadePessoasFuro,
                             nomeCompanheiro, nomeBebe, localParto, dpp, equipeMedica
@@ -1188,13 +1180,11 @@ Equipe Doula e Furo Humanizado";
                             SalvarItensAgendamento(idAgendamento);
                             AtualizarResumoAgendamentoPai(idAgendamento);
 
-                            //  ENVIA O E-MAIL COM O LINK DE COBRANÇA
                             string linkPagamento = $"http://localhost:8080/pagar?id={idAgendamento}";
-                            string emailDestinoFinal = emailDoUsuario; // Ou emailDoCliente se a sua tela lidar com isso separadamente
+                            string emailDestinoFinal = emailDoUsuario;
 
                             EnviarConfirmacaoDeAgendamento(idAgendamento, emailDestinoFinal, dataSelecionada, horariosSelecionadosDoula, servicos, total, false);
 
-                            // ABRE A TELA DE ESPERA QUE VAI INTERCEPTAR O CLIQUE
                             AguardandoPagamento telaEspera = new AguardandoPagamento(idAgendamento);
                             telaEspera.ShowDialog();
 
